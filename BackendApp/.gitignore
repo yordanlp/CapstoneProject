@@ -1,0 +1,18 @@
+# Flask App
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite database
+*.db
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# Python dependencies
+venv/
