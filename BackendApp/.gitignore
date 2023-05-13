@@ -16,3 +16,6 @@ __pycache__/
 
 # Python dependencies
 venv/
+
+#Logs
+logs/
