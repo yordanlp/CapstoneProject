@@ -15,7 +15,7 @@ __pycache__/
 .idea/
 
 # Python dependencies
-venv/
+backendenv/
 
 #Logs
 logs/
