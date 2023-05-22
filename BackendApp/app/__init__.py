@@ -1,6 +1,8 @@
 from flask import Flask
-from config import Config
 import logging, os
+from .configuration import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 log_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs')
 if not os.path.exists(log_dir):
@@ -18,6 +20,13 @@ app = Flask(__name__)
 # Load the configuration from config.py
 app.config.from_object(Config)
 
+#Database related
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+
 # Import the controllers and register the blueprints
 from app.controllers.user_controller import user_controller
 app.register_blueprint(user_controller)
+
+from .models import *
