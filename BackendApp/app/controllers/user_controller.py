@@ -1,13 +1,15 @@
 from flask import Blueprint, jsonify, request
 from app import logger
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import make_response
+from flask_cors import CORS, cross_origin
 from ..models import User, GenericResponse
 from ..services import UserService
 from ..utils import object_to_dict
 from app import db
 import json
 
-user_controller = Blueprint('user_controller', __name__, url_prefix='/users')
+user_controller = Blueprint('user_controller', __name__, url_prefix='/api/users')
 user_service = UserService(db)
 
 @user_controller.route('/register', methods=['POST'])
@@ -17,7 +19,7 @@ def register():
     password = request.json.get('password')
 
     result = user_service.create_user(username, email, password)
-    return jsonify(object_to_dict(result)) 
+    return make_response(jsonify(object_to_dict(result)) , result.code)
 
 
 @user_controller.route('/login', methods=['POST'])
@@ -29,8 +31,8 @@ def login():
 
     if result.success == True:
         access_token = create_access_token(identity={'id': result.data.id, 'user_name': result.data.user_name, 'email': result.data.email})
-        return jsonify(object_to_dict(GenericResponse(data=access_token)))
-    return jsonify(result)
+        return make_response(jsonify(object_to_dict(GenericResponse(data=access_token))), 200)
+    return make_response(jsonify(result), result.code)
 
 
 @user_controller.route('/profile', methods=['GET'])
