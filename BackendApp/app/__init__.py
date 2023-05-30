@@ -4,6 +4,7 @@ from .configuration import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS, cross_origin
 
 
 log_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs')
@@ -18,6 +19,9 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 app = Flask(__name__)
+
+#adding cors
+cors = CORS(app, origins='*')
 
 # Load the configuration from config.py
 app.config.from_object(Config)
