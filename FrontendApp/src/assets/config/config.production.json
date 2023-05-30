@@ -1,0 +1,22 @@
+{
+  "env": {
+    "name": "#{envName}"
+  },
+  "appInsights": {
+    "instrumentationKey": "#{appInsightsKey}"
+  },
+  "logging": {
+    "console": true,
+    "appInsights": true
+  },
+  "aad": {
+    "requireAuth": true,
+    "tenant": "#{aadTenant}",
+    "clientId": "#{aadClientId}"
+  },
+  "apiServer": {
+    "metadata": "https://#{apiServerPrefix}.demo.com/api/v1.0/",
+    "rule": "https://#{apiServerPrefix}.demo.com/api/v1.0/",
+    "host": "http://localhost:5000"
+  }
+}
