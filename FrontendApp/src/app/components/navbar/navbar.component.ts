@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 
 @Component({
@@ -11,6 +11,7 @@ export class NavbarComponent {
   dropdownOpen: boolean = false;
 
   constructor(public userService: UserService) {
+
   }
 
   toggleNavbar(): void {
