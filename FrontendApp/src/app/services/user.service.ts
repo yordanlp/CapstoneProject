@@ -9,7 +9,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 export class UserService {
 
   private _isLoggedIn$ = new BehaviorSubject(false);
+  private _user$ = new BehaviorSubject<any>(null);
   isLoggedIn$ = this._isLoggedIn$.asObservable();
+  user = this._user$.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -26,8 +28,9 @@ export class UserService {
     return this.http.post<any>(`${AppConfig.settings.apiServer.host}/api/users/login`, { email, password });
   }
 
-  setLogInStatus(status: boolean): void {
+  setLogInStatus(status: boolean, user: any): void {
     this._isLoggedIn$.next(status);
+    this._user$.next(user);
   }
 }
 
