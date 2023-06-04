@@ -11,22 +11,29 @@ import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER } from '@angular/core';
 import { AppConfig } from './services/app-config.service';
 import { LoginComponent } from './components/login/login.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { AuthGuard } from './guards/auth.guard';
+import { HomeComponent } from './components//home/home.component';
+import { ClickOutsideModule } from 'ng-click-outside';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
 }
 
 const routes: Routes = [
+  { path: '', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
-  { path: '', redirectTo: '/register', pathMatch: 'full' }, // Redirect to register page by default
+  { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    NavbarComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -35,6 +42,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    ClickOutsideModule,
     RouterModule.forRoot(routes)
   ],
   exports: [RouterModule],
@@ -44,7 +52,8 @@ const routes: Routes = [
       provide: APP_INITIALIZER,
       useFactory: initializeApp,
       deps: [AppConfig], multi: true
-    }
+    },
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })
