@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
+import { User } from 'src/app/models/user.model';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,7 @@ export class LoginComponent implements OnInit {
     this.userService.login(this.loginForm.value.email, this.loginForm.value.password)
       .subscribe(
         data => {
-          this.userService.setLogInStatus(true, data.data.data, data.data.token);
+          this.userService.setLogInStatus(true, data.data.data as User, data.data.token as string);
           this.router.navigate(['/']);
         },
         error => {

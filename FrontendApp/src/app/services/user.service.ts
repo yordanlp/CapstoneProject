@@ -2,14 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AppConfig } from './app-config.service';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  private _isLoggedIn$ = new BehaviorSubject(false);
-  private _user$ = new BehaviorSubject<any>(null);
+  private _isLoggedIn$ = new BehaviorSubject<boolean>(false);
+  private _user$ = new BehaviorSubject<User | null>(null);
   isLoggedIn$ = this._isLoggedIn$.asObservable();
   user = this._user$.asObservable();
 
@@ -17,7 +18,7 @@ export class UserService {
     if (localStorage.getItem('user-token') == null)
       this.setLogInStatus(false, null, '');
     else {
-      const user = JSON.parse(localStorage.getItem('user')!);
+      const user = JSON.parse(localStorage.getItem('user')!) as User;
       const token = localStorage.getItem('user-token')!;
       this.setLogInStatus(true, user, token);
     }
@@ -33,10 +34,10 @@ export class UserService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${AppConfig.settings.apiServer.host}/api/users/login`, { email, password });
+    return this.http.post(`${AppConfig.settings.apiServer.host}/api/users/login`, { email, password });
   }
 
-  setLogInStatus(status: boolean, user: any, token: string): void {
+  setLogInStatus(status: boolean, user: User | null, token: string): void {
     if (status) {
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('user-token', token);
