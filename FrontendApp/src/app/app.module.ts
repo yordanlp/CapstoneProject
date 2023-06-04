@@ -10,6 +10,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER } from '@angular/core';
 import { AppConfig } from './services/app-config.service';
+import { LoginComponent } from './components/login/login.component';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -17,14 +18,15 @@ export function initializeApp(appConfig: AppConfig) {
 
 const routes: Routes = [
   { path: 'register', component: RegisterComponent },
-  //{ path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/register', pathMatch: 'full' }, // Redirect to register page by default
 ];
 
 @NgModule({
   declarations: [
     AppComponent,
-    RegisterComponent
+    RegisterComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
