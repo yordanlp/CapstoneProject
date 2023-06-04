@@ -10,7 +10,8 @@ export class NavbarComponent {
   isOpen: boolean = false;
   dropdownOpen: boolean = false;
 
-  constructor(public userService: UserService) { }
+  constructor(public userService: UserService) {
+  }
 
   toggleNavbar(): void {
     this.isOpen = !this.isOpen;

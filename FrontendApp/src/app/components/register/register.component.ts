@@ -39,7 +39,7 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    const username = this.registerForm.value.username;
+    const username = this.registerForm.value.name;
     const email = this.registerForm.value.email;
     const password = this.registerForm.value.password;
 

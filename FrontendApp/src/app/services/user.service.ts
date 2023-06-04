@@ -13,7 +13,15 @@ export class UserService {
   isLoggedIn$ = this._isLoggedIn$.asObservable();
   user = this._user$.asObservable();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    if (localStorage.getItem('user-token') == null)
+      this.setLogInStatus(false, null, '');
+    else {
+      const user = JSON.parse(localStorage.getItem('user')!);
+      const token = localStorage.getItem('user-token')!;
+      this.setLogInStatus(true, user, token);
+    }
+  }
 
   registerUser(username: string, email: string, password: string) {
     const body = {
@@ -28,9 +36,21 @@ export class UserService {
     return this.http.post<any>(`${AppConfig.settings.apiServer.host}/api/users/login`, { email, password });
   }
 
-  setLogInStatus(status: boolean, user: any): void {
+  setLogInStatus(status: boolean, user: any, token: string): void {
+    if (status) {
+      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user-token', token);
+    } else {
+      localStorage.removeItem('user');
+      localStorage.removeItem('user-token');
+    }
     this._isLoggedIn$.next(status);
     this._user$.next(user);
+  }
+
+  logout(): void {
+    this.setLogInStatus(false, null, '');
+    localStorage.removeItem('user-token');
   }
 }
 
