@@ -38,4 +38,6 @@ from .models import *
 
 # Import the controllers and register the blueprints
 from app.controllers.user_controller import user_controller
+from app.controllers.images_controller import images_controller
 app.register_blueprint(user_controller)
+app.register_blueprint(images_controller)

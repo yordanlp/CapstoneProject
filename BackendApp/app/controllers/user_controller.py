@@ -30,7 +30,7 @@ def login():
     result = user_service.authenticate_user(email, password)
 
     if result.success == True:
-        access_token = create_access_token(identity={'id': result.data.id, 'user_name': result.data.user_name, 'email': result.data.email})
+        access_token = create_access_token(identity={'id': result.data.id, 'user_name': result.data.user_name, 'email': result.data.email}, expires_delta=False)
         return make_response(jsonify(object_to_dict(GenericResponse(data={'data': result.data, 'token': access_token}))), 200)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
