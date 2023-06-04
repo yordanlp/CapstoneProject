@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AppConfig } from 'src/app/services/app-config.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({
@@ -12,7 +13,7 @@ export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   formSubmitted = false;
 
-  constructor(private formBuilder: FormBuilder, private userService: UserService) {
+  constructor(private formBuilder: FormBuilder, private userService: UserService, private router: Router) {
 
     let apiServer = AppConfig.settings.apiServer;
 
@@ -44,8 +45,7 @@ export class RegisterComponent implements OnInit {
 
     this.userService.registerUser(username, email, password).subscribe(
       response => {
-        // Handle success response
-        console.log('User registered successfully:', response);
+        this.router.navigate(['/login']);
       },
       error => {
         // Handle error response

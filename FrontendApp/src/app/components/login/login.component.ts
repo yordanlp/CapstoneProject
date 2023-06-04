@@ -45,10 +45,13 @@ export class LoginComponent implements OnInit {
       .subscribe(
         data => {
           localStorage.setItem('user-token', JSON.stringify(data.data));
+          this.userService.setLogInStatus(true);
           this.router.navigate(['/']);
         },
         error => {
           this.loading = false;
+          this.userService.setLogInStatus(false);
+          this.router.navigate(['/login']);
           console.log(error);
         });
   }
