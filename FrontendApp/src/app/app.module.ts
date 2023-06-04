@@ -7,7 +7,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RegisterComponent } from './components/register/register.component';
 import { RouterModule, Routes } from '@angular/router';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { APP_INITIALIZER } from '@angular/core';
 import { AppConfig } from './services/app-config.service';
 import { LoginComponent } from './components/login/login.component';
@@ -15,6 +15,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { AuthGuard } from './guards/auth.guard';
 import { HomeComponent } from './components//home/home.component';
 import { ClickOutsideModule } from 'ng-click-outside';
+import { JwtInterceptor } from './interceptors/jwt.interceptor';
+import { ImageCardComponent } from "./components/image-card/image-card.component";
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -33,7 +35,8 @@ const routes: Routes = [
     RegisterComponent,
     LoginComponent,
     NavbarComponent,
-    HomeComponent
+    HomeComponent,
+    ImageCardComponent
   ],
   imports: [
     BrowserModule,
@@ -53,6 +56,7 @@ const routes: Routes = [
       useFactory: initializeApp,
       deps: [AppConfig], multi: true
     },
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     AuthGuard
   ],
   bootstrap: [AppComponent]
