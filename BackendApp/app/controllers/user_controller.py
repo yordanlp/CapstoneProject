@@ -32,7 +32,7 @@ def login():
     if result.success == True:
         access_token = create_access_token(identity={'id': result.data.id, 'user_name': result.data.user_name, 'email': result.data.email})
         return make_response(jsonify(object_to_dict(GenericResponse(data=access_token))), 200)
-    return make_response(jsonify(result), result.code)
+    return make_response(jsonify(object_to_dict(result)), result.code)
 
 
 @user_controller.route('/profile', methods=['GET'])

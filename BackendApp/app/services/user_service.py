@@ -15,7 +15,7 @@ class UserService:
                 return GenericResponse(errors=['User with that email already exists'], code=409)
 
             # Create a new user
-            new_user = User(user_name=username, email=email, password=password)
+            new_user = User(user_name=username, email=email, password=hash_password(password))
             self.db.session.add(new_user)
             self.db.session.commit()
             print(model_to_dict(new_user))
@@ -33,7 +33,7 @@ class UserService:
     def authenticate_user(self, email, password) -> GenericResponse:
         try:
             user = self.find_user_by_email(email)
-            if user and user.password == password:
+            if user and user.check_password(password):
                 return GenericResponse(data=user)
             return GenericResponse(errors=['Username or password are incorrect'], code=409)
         except Exception as e:
