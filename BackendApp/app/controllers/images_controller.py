@@ -35,7 +35,7 @@ def list_images():
 
 @images_controller.route('/image/<int:image_id>', methods=['GET'])
 @jwt_required()
-def serve_image(image_id):
+def get_image(image_id):
     user_data = get_jwt_identity()
     user_id = user_data['id']
 
