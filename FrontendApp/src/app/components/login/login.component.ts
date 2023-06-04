@@ -44,7 +44,7 @@ export class LoginComponent implements OnInit {
     this.userService.login(this.loginForm.value.email, this.loginForm.value.password)
       .subscribe(
         data => {
-          this.userService.setLogInStatus(true, data.data, data.data.token);
+          this.userService.setLogInStatus(true, data.data.data, data.data.token);
           this.router.navigate(['/']);
         },
         error => {
