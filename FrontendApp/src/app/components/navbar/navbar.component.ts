@@ -9,9 +9,18 @@ import { UserService } from 'src/app/services/user.service';
 export class NavbarComponent {
   isOpen: boolean = false;
   dropdownOpen: boolean = false;
+  userDropdownOpen: boolean = false;
 
   constructor(public userService: UserService) {
 
+  }
+
+  toogleUserDropdown(): void {
+    this.userDropdownOpen = !this.userDropdownOpen;
+  }
+
+  closeUserDropdown(): void {
+    this.userDropdownOpen = false;
   }
 
   toggleNavbar(): void {
