@@ -1,12 +1,10 @@
 from flask import Blueprint, jsonify, request
-from app import logger, app
+from app import logger, app, socketio, db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import make_response, send_file
-from flask_cors import CORS, cross_origin
-from ..models import User, GenericResponse
+from ..models import GenericResponse
 from ..services import UserService, ImageService
 from ..utils import object_to_dict
-from app import db
 import json
 import os
 
@@ -23,6 +21,13 @@ def upload_image():
     image = request.files['image']
     result = image_service.save_image(image, user_data['id'])
     return make_response(jsonify(object_to_dict(result)), result.code)
+
+"""@images_controller.route('/send-message', methods=['POST'])
+def send_message():
+    message = request.json['message']
+    socketio.emit('message', {'data': message})
+    return {'result': 'Message sent ' + message}
+"""
     
 
 
