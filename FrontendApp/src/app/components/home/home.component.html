@@ -11,6 +11,22 @@
   <button type="button"
     class="text-gray-900 border border-white hover:border-gray-200 dark:border-gray-900 dark:bg-gray-900 dark:hover:border-gray-700 bg-white focus:ring-4 focus:outline-none focus:ring-gray-300 rounded-full text-base font-medium px-5 py-2.5 text-center mr-3 mb-3 dark:text-white dark:focus:ring-gray-800">Gaming</button>
 </div>
+<div>
+  <div class="flex flex-row py-5 text-sm align-middle md:text-lg">
+    <div class="flex items-center">
+      <svg width="8" height="10" viewBox="0 0 8 10" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+        <path d="M8 6.32142L4 10L0 6.32142L0.69323 5.67114L3.5 8.25215L3.5 0H4.5L4.5 8.23964L7.29289 5.67114L8 6.32142Z"
+          fill="#1C2B33"></path>
+      </svg>
+      <span>Find a photo in the gallery, or</span>
+      <span role="presentation" tabindex="0">
+        <label for="image" class="ml-1 text-blue-700 underline cursor-pointer">Upload an image</label>
+        <input id="image" (change)="onFileSelected($event)" accept="image/png,.png,image/jpeg,.jpeg,.jpg" type="file"
+          tabindex="-1" style="display: none;">
+      </span>
+    </div>
+  </div>
+</div>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4" *ngIf="imagesObservable$ | async as images">
 
   <div class="flex items-center justify-center" *ngFor="let image of images.data">
