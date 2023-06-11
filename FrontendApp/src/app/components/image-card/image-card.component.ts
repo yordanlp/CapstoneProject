@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
+import { Image } from 'src/app/models/image.model';
 import { ImageService } from 'src/app/services/image.service';
 
 @Component({
@@ -9,7 +10,7 @@ import { ImageService } from 'src/app/services/image.service';
 })
 export class ImageCardComponent implements OnInit {
 
-  @Input() imageData: any
+  @Input() imageData: Image = null!;
   imageBlob$: Observable<any> = null!
   imageSubscription: Subscription = null!;
   blobUrl: string = ""
