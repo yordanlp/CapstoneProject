@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
+from flask_socketio import SocketIO
 
 
 log_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs')
@@ -20,11 +21,11 @@ logger.addHandler(file_handler)
 
 app = Flask(__name__)
 
-#adding cors
-cors = CORS(app, origins='*')
-
 # Load the configuration from config.py
 app.config.from_object(Config)
+
+#adding cors
+cors = CORS(app, origins='*')
 
 #JWT
 jwt = JWTManager(app)
@@ -32,6 +33,10 @@ jwt = JWTManager(app)
 #Database related
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+
+#setting up socket io
+socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
 
 from .models import *
 
@@ -41,3 +46,5 @@ from app.controllers.user_controller import user_controller
 from app.controllers.images_controller import images_controller
 app.register_blueprint(user_controller)
 app.register_blueprint(images_controller)
+
+
