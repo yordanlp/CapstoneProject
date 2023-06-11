@@ -17,6 +17,7 @@ import { HomeComponent } from './components//home/home.component';
 import { ClickOutsideModule } from 'ng-click-outside';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { ImageCardComponent } from "./components/image-card/image-card.component";
+import { ImageTransformComponent } from './components/image-transform/image-transform.component';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'transform/:id', component: ImageTransformComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -36,7 +38,8 @@ const routes: Routes = [
     LoginComponent,
     NavbarComponent,
     HomeComponent,
-    ImageCardComponent
+    ImageCardComponent,
+    ImageTransformComponent
   ],
   imports: [
     BrowserModule,
