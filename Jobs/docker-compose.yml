@@ -12,12 +12,14 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+    environment:
+      - CUDA_HOME=/usr/local/cuda
     volumes:
       - ./Shared:/app/Shared
     networks:
       - backend
 
-  
+
 
 
 networks:
