@@ -19,3 +19,6 @@ backendenv/
 
 #Logs
 logs/
+
+#python env
+/venv/
