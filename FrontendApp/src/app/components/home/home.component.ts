@@ -5,6 +5,7 @@ import { AppConfig } from 'src/app/services/app-config.service';
 import { NgForm } from '@angular/forms';
 import { Image } from 'src/app/models/image.model';
 import { io } from 'socket.io-client';
+import { FilterCategories } from 'src/app/models/filter-categories.model';
 
 @Component({
   selector: 'app-home',
@@ -17,16 +18,41 @@ export class HomeComponent implements OnInit, OnDestroy {
   imagesSubscription: Subscription | null = null;
   uploadSubscription: Subscription | null = null;
   socket = io(AppConfig.settings.apiServer.host);
+  selectedImage: File | null = null;
+  modelDialog: HTMLDialogElement | null = null;
+
+  filterCategories: FilterCategories[] = [
+    {
+      name: 'All categories',
+      value: '*',
+      selected: true
+    },
+    {
+      name: 'Faces',
+      value: 'FACES'
+    },
+    {
+      name: 'Landscapes',
+      value: 'LANDSCAPES'
+    }
+  ]
 
   onFileSelected(event: Event): void {
     let target = event.target as HTMLInputElement;
-    this.submitImage(target?.files![0])
+    let dialog = document.querySelector('dialog');
+    this.selectedImage = target?.files![0];
+    this.modelDialog?.showModal();
+    target.value = '';
   }
 
-  submitImage(imageFile: File) {
-    const formData = new FormData();
-    formData.append('image', imageFile, imageFile.name);
-    this.uploadSubscription = this.imageService.uploadImage(imageFile).subscribe(
+  selectModel(model: string): void {
+    this.modelDialog?.close();
+    if (this.selectedImage != null)
+      this.submitImage(this.selectedImage, model);
+  }
+
+  submitImage(imageFile: File, model: string) {
+    this.uploadSubscription = this.imageService.uploadImage(imageFile, model).subscribe(
       data => console.log(data),
       error => console.error(error)
     );
@@ -47,6 +73,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       data => console.log(data)
       , error => console.error(error)
     ) ?? null;
+    this.modelDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
   }
 
 
