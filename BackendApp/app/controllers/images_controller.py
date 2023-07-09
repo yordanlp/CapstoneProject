@@ -19,7 +19,8 @@ def upload_image():
     # getting user id from jwt instead of request
     user_data = get_jwt_identity()
     image = request.files['image']
-    result = image_service.save_image(image, user_data['id'])
+    model = request.form['model']
+    result = image_service.save_image(image, model, user_data['id'])
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 """@images_controller.route('/send-message', methods=['POST'])

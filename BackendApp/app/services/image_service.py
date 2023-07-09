@@ -10,13 +10,13 @@ class ImageService:
     def __init__(self, db) -> None:
         self.db = db
 
-    def save_image(self, image, user_id) -> GenericResponse:
+    def save_image(self, image, model, user_id) -> GenericResponse:
         try:                
             file_extension = imghdr.what(image)
             if not file_extension:
                 return GenericResponse(errors=['The file uploaded is not an image'])
-            image_name = uuid.uuid4().hex
-            new_image = Image(name=image_name, user_id=user_id, mime_type=image.mimetype)
+            image_name = uuid.uuid4().hex + '.' + file_extension
+            new_image = Image(name=image_name, user_id=user_id, mime_type=image.mimetype, model=model)
             self.db.session.add(new_image)
             image.save(os.path.join(app.config['IMAGES_FOLDER'], image_name))
             self.db.session.commit()

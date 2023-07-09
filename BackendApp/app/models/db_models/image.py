@@ -9,3 +9,4 @@ class Image(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     mime_type = db.Column(db.String(10))
     user = db.relationship('User', backref=db.backref('images', lazy=True))
+    model = db.Column(db.String(30))
