@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+  
   alis:
     image: alis
     ports:
@@ -18,9 +19,21 @@ services:
       - ./Shared:/app/Shared
     networks:
       - backend
+  
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - backend  
 
-
-
+  worker:
+    image: worker
+    networks:
+      - backend
+    depends_on:
+      - redis
+      - alis
 
 networks:
   backend:
