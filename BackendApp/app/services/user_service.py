@@ -39,7 +39,7 @@ class UserService:
         except Exception as e:
             logger.error("An error has ocurred while authenticating the user")
             logger.error(e)
-            return GenericResponse(500)
+            return GenericResponse(code=500)
 
     def get_user_by_id(self, user_id) -> User:
         return User.query.get(user_id)

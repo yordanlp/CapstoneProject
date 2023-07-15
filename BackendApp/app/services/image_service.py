@@ -24,7 +24,7 @@ class ImageService:
         except Exception as e:      
             logger.error("An error has ocurred while saving the image")
             logger.error(str(e))
-            return GenericResponse(500)
+            return GenericResponse(code=500)
 
     def get_images_by_user(self, user_id):
         try:                
@@ -33,7 +33,7 @@ class ImageService:
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the images for user {user_id}")
             logger.error(str(e))
-            return GenericResponse(500)
+            return GenericResponse(code=500)
         
     def get_image_by_id(self, image_id) -> Image:
         try:                
@@ -44,5 +44,5 @@ class ImageService:
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the image {image_id}")
             logger.error(str(e))
-            return GenericResponse(500)
+            return GenericResponse(code=500)
         
