@@ -10,3 +10,4 @@ class Image(db.Model):
     mime_type = db.Column(db.String(10))
     user = db.relationship('User', backref=db.backref('images', lazy=True))
     model = db.Column(db.String(30))
+    status_process = db.Column(db.String(30))
