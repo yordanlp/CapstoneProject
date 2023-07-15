@@ -27,7 +27,7 @@ Jinja2==3.1.2
 Mako==1.2.4
 MarkupSafe==2.1.2
 passlib==1.7.4
-psycopg2==2.9.6
+psycopg2-binary==2.9.6
 PyJWT==2.7.0
 python-dotenv==1.0.0
 python-engineio==4.4.1
