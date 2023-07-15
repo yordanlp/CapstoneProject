@@ -18,6 +18,7 @@ import { ClickOutsideModule } from 'ng-click-outside';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { ImageCardComponent } from "./components/image-card/image-card.component";
 import { ImageTransformComponent } from './components/image-transform/image-transform.component';
+import { LatentEditsPopUpComponent } from './latent-edits-pop-up/latent-edits-pop-up.component';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -39,7 +40,8 @@ const routes: Routes = [
     NavbarComponent,
     HomeComponent,
     ImageCardComponent,
-    ImageTransformComponent
+    ImageTransformComponent,
+    LatentEditsPopUpComponent
   ],
   imports: [
     BrowserModule,
