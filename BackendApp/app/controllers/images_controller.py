@@ -3,7 +3,7 @@ from app import logger, app, socketio, db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import make_response, send_file
 from ..models import GenericResponse
-from ..services import UserService, ImageService
+from ..services import UserService, ImageService, WorkerService
 from ..utils import object_to_dict
 import json
 import os
@@ -11,6 +11,7 @@ import os
 images_controller = Blueprint('images_controller', __name__, url_prefix='/api/images')
 user_service = UserService(db)
 image_service = ImageService(db)
+worker_service = WorkerService(db)
 
 
 @images_controller.route('/upload', methods=['POST'])
@@ -21,6 +22,8 @@ def upload_image():
     image = request.files['image']
     model = request.form['model']
     result = image_service.save_image(image, model, user_data['id'])
+    if result.success:
+        worker_service.generate_projection(result.data.id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 """@images_controller.route('/send-message', methods=['POST'])
