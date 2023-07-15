@@ -1,3 +1,5 @@
+import json
+import threading
 from flask import Flask
 import logging, os
 from .configuration import Config
@@ -6,6 +8,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO
+import redis
 
 
 log_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logs')
@@ -34,6 +37,14 @@ jwt = JWTManager(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+#redis
+redis_conn = redis.Redis(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'])
+
+# start a new thread that listens to Redis
+from .services import RedisService
+redis_service = RedisService(db)
+t = threading.Thread(target=redis_service.listen_to_redis)
+t.start()
 
 #setting up socket io
 socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)

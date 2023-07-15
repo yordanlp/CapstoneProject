@@ -10,3 +10,5 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     IMAGES_FOLDER = os.getenv("IMAGES_FOLDER")
+    REDIS_HOST = os.getenv("REDIS_HOST")
+    REDIS_PORT = os.getenv("REDIS_PORT")

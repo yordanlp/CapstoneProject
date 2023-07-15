@@ -35,7 +35,7 @@ class ImageService:
             logger.error(str(e))
             return GenericResponse(code=500)
         
-    def get_image_by_id(self, image_id) -> Image:
+    def get_image_by_id(self, image_id) -> GenericResponse:
         try:                
             image = Image.query.get(image_id)
             if image is None:
@@ -43,6 +43,17 @@ class ImageService:
             return GenericResponse(data=image)
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the image {image_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
+    def get_image_by_name(self, name) -> GenericResponse:
+        try:                
+            image = Image.query.filter_by(name=name).first()
+            if image is None:
+                return GenericResponse(errors=['Image not found'], code=404)
+            return GenericResponse(data=image)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the image {name}")
             logger.error(str(e))
             return GenericResponse(code=500)
         
