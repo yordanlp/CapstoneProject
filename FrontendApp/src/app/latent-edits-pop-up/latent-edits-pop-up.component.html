@@ -1,0 +1,98 @@
+<dialog id="modelPopup" class="p-0 rounded-lg">
+    <div id="popup-modal" tabindex="-1"
+      style="width: 60vw;"
+      class="overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+      <div class="relative w-full max-w-full max-h-full">
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <button (click)="closeModal()" type="button"
+            class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+          <div class="p-6 text-center">
+            <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Input the parameters to transform the image</h3>
+              <form>
+                <div class="flex flex-row gap-6 mb-6">
+                    <div>
+                        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Principal Component</label>
+                        <input  [(ngModel)]="latentEdit.principal_component_number" name="principal_component_number" type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" required>
+                    </div>
+                    <div>
+                        <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Start Layer</label>
+                        <input [(ngModel)]="latentEdit.start_layer" name="start_layer" type="number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" required>
+                    </div>
+                    <div>
+                      <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">End Layer</label>
+                      <input type="number" [(ngModel)]="latentEdit.end_layer" name="end_layer" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" required>
+                    </div>
+                    <div>
+                      <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Lower Coefficient</label>
+                      <input type="number" [(ngModel)]="latentEdit.lower_coeff_limit" name="lower_coeff_limit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" required>
+                    </div>
+                    <div>
+                      <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Upper Coefficient</label>
+                      <input type="number" [(ngModel)]="latentEdit.upper_coeff_limit" name="upper_coeff_limit" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="0" required>
+                    </div>
+                    <div>
+                      <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">&nbsp;</label>
+                      <button (click)="addLatentEdit()" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Add</button>
+                    </div>
+                </div>
+                  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">
+                                    Principal Component
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Start Layer
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    End Layer
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Lowe Coefficient
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                    Upper Coefficient
+                                </th>
+                                <th scope="col" class="px-6 py-3">
+                                  Action
+                              </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                              <tr *ngFor="let latentEdit of latentEdits; let i = index" [ngClass]="{'dark:bg-gray-900': i % 2 != 0, 'dark:bg-gray-800': i % 2 == 0}" class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                  {{ latentEdit.principal_component_number }}
+                                </th>
+                                <td class="px-6 py-4">
+                                  {{ latentEdit.start_layer }}
+                                </td>
+                                <td class="px-6 py-4">
+                                  {{ latentEdit.end_layer }}
+                                </td>
+                                <td class="px-6 py-4">
+                                  {{ latentEdit.lower_coeff_limit }}
+                                </td>
+                                <td class="px-6 py-4">
+                                  {{ latentEdit.upper_coeff_limit }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a (click)="deleteLatentEdit(i)" class="font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline">Delete</a>
+                                </td>
+                            </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                <button (click)="submitLatentEdits()" type="submit" class="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
