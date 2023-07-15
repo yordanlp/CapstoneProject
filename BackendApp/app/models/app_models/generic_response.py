@@ -9,8 +9,7 @@ class GenericResponse:
 
         if code == 500:
             errors = ["Something wrong happend, contact the administrator if it persists"]
-        
-        if errors == None:
+        elif errors == None:
             self.success = True
             self.data = data
         else:
