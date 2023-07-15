@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
-import { LatentEditsPopUpComponent } from 'src/app/latent-edits-pop-up/latent-edits-pop-up.component';
+import { LatentEditsPopUpComponent } from 'src/app/components/latent-edits-pop-up/latent-edits-pop-up.component';
 import { Image } from 'src/app/models/image.model';
 import { LatentEdit } from 'src/app/models/latent-edit.model';
 import { ImageService } from 'src/app/services/image.service';
@@ -39,7 +39,10 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     this.imageSubscription = this.imageBlob$.subscribe(data => {
       this.blobUrl = URL.createObjectURL(data);
     });
+  }
 
+  runPca( event: Array<LatentEdit> ){
+    console.log(event);
   }
 
   showLatentEditsModal(){

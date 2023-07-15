@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { LatentEdit } from '../models/latent-edit.model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { LatentEdit } from '../../models/latent-edit.model';
 
 @Component({
   selector: 'app-latent-edits-pop-up',
@@ -11,6 +11,7 @@ export class LatentEditsPopUpComponent implements OnInit{
   modalDialog: HTMLDialogElement | null = null;
   latentEdit: LatentEdit;
   latentEdits: Array<LatentEdit> = Array();
+  @Output() updateLatentEdits = new EventEmitter<Array<LatentEdit>>();
 
   constructor() {
     this.latentEdit = {
@@ -34,6 +35,16 @@ export class LatentEditsPopUpComponent implements OnInit{
 
   submitLatentEdits(){
     console.log("Latent Edits", this.latentEdits);
+    this.latentEdit = {
+      principal_component_number: 0,
+      start_layer: 0,
+      end_layer: 0,
+      lower_coeff_limit: 0,
+      upper_coeff_limit: 0
+    }
+    this.updateLatentEdits.emit(this.latentEdits);
+    this.latentEdits = [];
+    this.closeModal();
   }
 
   addLatentEdit(): void {
