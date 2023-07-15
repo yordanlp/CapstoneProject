@@ -132,7 +132,8 @@ def main():
                 'userId': userId,
                 'type': 'finish',
                 'success': response['success'],
-                'message': response['message']
+                'message': response['message'],
+                'triggerMessage': data,
             }))
 
 
