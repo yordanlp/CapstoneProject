@@ -1,9 +1,11 @@
 import json
+
 from .image_service import ImageService
 from .user_service import UserService
 from ..models import User, GenericResponse, Image
 from ..utils import *
 from app import logger, app, redis_conn
+from ..socket import socketio
 import os
 import uuid
 import imghdr
@@ -28,7 +30,7 @@ class RedisService:
                     try:
                         if message['type'] == 'message':
                             data = json.loads(message['data'])
-                            print(data)
+                            #print(data)
                             if data['success'] == True:
                                 self.process_message(data)
                             else:
@@ -43,28 +45,43 @@ class RedisService:
 
     def process_message(self, data):
         event = data['triggerMessage']
-        print("event", event)
         if event is None:
             return
         user_id = event['userId']
         event_id = event['eventId']
-        message_key = f"{user_id}:{event_id}"
+        message_key = self.get_message_key(data)
         if  redis_conn.get(message_key) == b'True':
             print( f"event with used_id: {user_id} and event_id: {event_id} was already proccessed" )
             return
-        redis_conn.set(message_key, 'True')
-        print("event")
         print(event)
+        redis_conn.set(message_key, 'True')
         if event['data']['endpoint'] == '/run_projection':
-            self.process_finish_projection(event['data'])
+            self.process_finish_projection(data)
+        if event['data']['endpoint'] == '/run_pca':
+            self.process_finish_pca(data)
     
+    def process_finish_pca(self, data):
+        print("FINISH PCA")
+        message_key = self.get_message_key(data)
+        print(message_key)
+        socketio.emit(message_key, json.dumps(data))
+
     def process_finish_projection(self, data):
-        image_name = data['image_id']
-        print(image_name)
+        message_key = self.get_message_key(data)
+        image_name = data['triggerMessage']['data']['image_id']
         result = image_service.get_image_by_name(image_name)
         if result.success != True:
             print(result.errors)
+            socketio.emit(message_key, json.dumps(data))
             return
         image = result.data
         image.status_process = 'FINISH'
         self.db.session.commit()
+        socketio.emit(message_key, json.dumps(data))
+
+    def get_message_key(self, data) -> str:
+        event = data['triggerMessage']
+        user_id = event['userId']
+        event_id = event['eventId']
+        message_key = f"{user_id}:{event_id}"
+        return message_key

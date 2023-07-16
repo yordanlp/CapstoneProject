@@ -26,13 +26,39 @@ def upload_image():
         worker_service.generate_projection(result.data.id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
-"""@images_controller.route('/send-message', methods=['POST'])
-def send_message():
-    message = request.json['message']
-    socketio.emit('message', {'data': message})
-    return {'result': 'Message sent ' + message}
-"""
-    
+@images_controller.route('/pca', methods=['POST'])
+@jwt_required()
+def pca():
+    # getting user id from jwt instead of request
+    user_data = get_jwt_identity()
+    image_id = request.json.get('imageId')
+    latent_edits = request.json.get('latentEdits')
+    event_id = request.json.get('eventId')
+    result = worker_service.run_pca(image_id, latent_edits, event_id)
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
+
+@images_controller.route('/generated/<int:image_id>', methods=['GET'])
+@jwt_required()
+def get_generated(image_id):
+    user_data = get_jwt_identity()
+    user_id = user_data['id']
+
+    # Get the image from the database
+    result = image_service.get_image_by_id(image_id)
+
+    if not result.success:
+        return make_response(jsonify(object_to_dict(result)), result.code)
+
+    # If the image does not exist or does not belong to the user, return a 401 error
+    if result.data is None or result.data.user_id != user_id:
+        return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
+
+    result = image_service.get_generated_image(image_id)
+
+    if result.success == True:
+        return send_file(result.data['image_path'], mimetype=result.data['mime_type'])
+    return make_response(object_to_dict(result), result.code)
 
 
 @images_controller.route('/list', methods=['GET'])

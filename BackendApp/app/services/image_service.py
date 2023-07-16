@@ -1,3 +1,4 @@
+import mimetypes
 from ..models import User, GenericResponse, Image
 from ..utils import *
 from app import logger, app
@@ -56,4 +57,17 @@ class ImageService:
             logger.error(f"An error has ocurred while retrieving the image {name}")
             logger.error(str(e))
             return GenericResponse(code=500)
-        
+    
+    def get_generated_image( self, image_id ):
+        try:                
+            image = Image.query.get(image_id)
+            if image is None:
+                return GenericResponse(errors=['Image not found'], code=404)
+            folder_name = image.name.split('.')[0]
+            image_path = os.path.join(app.config['PCA_FOLDER'], folder_name, '0.jpg')
+            mime_type, encoding = mimetypes.guess_type(image_path)
+            return GenericResponse(data={'image_path': image_path, 'mime_type': mime_type}, code=200)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the image {image_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)

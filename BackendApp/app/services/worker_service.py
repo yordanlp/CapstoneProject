@@ -19,8 +19,6 @@ class WorkerService:
     def generate_projection(self, image_id) -> GenericResponse:
         try:                
             result = image_service.get_image_by_id(image_id)
-            print("Generating projection")
-            print("result", result)
             if result.success != True:
                 return result
 
@@ -37,6 +35,31 @@ class WorkerService:
             }
             image.status_process = 'START'
             self.db.session.commit()
+            redis_conn.publish('backend2worker_queue', json.dumps(data))
+            return GenericResponse(data=data, code=200)
+        except Exception as e:      
+            logger.error("An error has ocurred trying to generate the projection of the image")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
+    def run_pca(self, image_id, latent_edits, event_id) -> GenericResponse:
+        try:                
+            result = image_service.get_image_by_id(image_id)
+            print("Running PCA")
+            if result.success != True:
+                return result
+            image = result.data
+            vectorid = image.name.split('.')[0] + '.pkl'
+            data = {
+                'eventId': event_id,
+                'userId': image.user_id,
+                'model': 'alis',
+                'data': {
+                    "endpoint": '/run_pca',
+                    "vector_id": vectorid,
+                    "latent_edits": latent_edits
+                }
+            }
             redis_conn.publish('backend2worker_queue', json.dumps(data))
             return GenericResponse(data=data, code=200)
         except Exception as e:      
