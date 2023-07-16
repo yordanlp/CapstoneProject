@@ -64,7 +64,6 @@ export class LatentEditsPopUpComponent implements OnInit{
   }
 
   closeModal(){
-    console.log("Here");
     this.modalDialog?.close();
   }
 

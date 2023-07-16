@@ -53,5 +53,10 @@ export class UserService {
     this.setLogInStatus(false, null, '');
     localStorage.removeItem('user-token');
   }
+
+  getUser(): User{
+    const user = JSON.parse(localStorage.getItem('user')!) as User;
+    return user;
+  }
 }
 

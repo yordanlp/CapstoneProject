@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AppConfig } from './app-config.service';
 import { Image } from '../models/image.model';
+import { LatentEdit } from '../models/latent-edit.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,5 +29,18 @@ export class ImageService {
   // Get an image by id
   getImage(imageId: number): Observable<any> {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`, { responseType: 'blob' });
+  }
+
+  getGeneratedImage(imageId: number): Observable<any> {
+    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/generated/${imageId}`, { responseType: 'blob' });
+  }
+
+  runPCA( imageId: number, latentEdits: Array<LatentEdit>, eventId: string ){
+    const body = {
+      imageId,
+      latentEdits,
+      eventId
+    };
+    return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/pca`, body);
   }
 }
