@@ -7,7 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS, cross_origin
-from flask_socketio import SocketIO
+#from flask_socketio import SocketIO
+from .socket import socketio
 import redis
 
 
@@ -40,15 +41,6 @@ migrate = Migrate(app, db)
 #redis
 redis_conn = redis.Redis(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'])
 
-# start a new thread that listens to Redis
-from .services import RedisService
-redis_service = RedisService(db)
-t = threading.Thread(target=redis_service.listen_to_redis)
-t.start()
-
-#setting up socket io
-socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
-
 from .models import *
 
 
@@ -59,3 +51,12 @@ app.register_blueprint(user_controller)
 app.register_blueprint(images_controller)
 
 
+#setting up socket io
+#socketio = SocketIO(app, cors_allowed_origins="*", engineio_logger=True)
+socketio.init_app(app)
+
+# start a new thread that listens to Redis
+from .services import RedisService
+redis_service = RedisService(db)
+t = threading.Thread(target=redis_service.listen_to_redis)
+t.start()
