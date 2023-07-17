@@ -4,7 +4,6 @@ alis_path = os.path.abspath('./alis')
 sys.path.append(alis_path)
 
 from flask import Flask, jsonify, abort, request
-import secrets
 
 from Alis import AlisWrapper
 
