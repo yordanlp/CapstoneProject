@@ -244,6 +244,7 @@ class AlisWrapper:
 		save_video: bool = True, 
 		seed: int = 303, 
 		num_steps: int = 2000,
+        device : torch.device = torch.device('cuda'),
 		verbose: bool = False,
     ):
         '''
