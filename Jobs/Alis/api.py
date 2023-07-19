@@ -3,7 +3,7 @@ import sys
 alis_path = os.path.abspath('./alis')
 sys.path.append(alis_path)
 
-from flask import Flask, jsonify, abort, request
+from flask import Flask, jsonify, request
 
 from Alis import AlisWrapper
 
@@ -53,12 +53,18 @@ def random_images():
 def run_projection():
     image_id = request.args.get('image_id')
     if image_id is None:
-        abort(404, 'File not found')
+        return jsonify ({
+            'success' : False,
+            'message': 'File not found',
+        })
 
     file_path = f"{app.config['UPLOAD_FOLDER']}/{image_id}"
 
     if not os.path.exists(file_path):
-        abort(404, 'File not found')
+        return jsonify ({
+            'success' : False,
+            'message': 'File not found',
+        })
 
     AlisWrapper.run_projection_on_file(
         file_path=file_path,
