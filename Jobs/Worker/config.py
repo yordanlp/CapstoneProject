@@ -4,3 +4,6 @@ class Config:
 
     ALIS_ROUTE = 'alis'
     ALIS_PORT = 5000
+
+    STYLEGAN2_ROUTE = 'stylegan2'
+    STYLEGAN2_PORT = 5001

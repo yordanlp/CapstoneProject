@@ -244,6 +244,7 @@ class AlisWrapper:
 		save_video: bool = True, 
 		seed: int = 303, 
 		num_steps: int = 2000,
+        device : torch.device = torch.device('cuda'),
 		verbose: bool = False,
     ):
         '''
@@ -371,7 +372,9 @@ class AlisWrapper:
         PCA moving stuff
     **************************************************************************************************
     '''
+    @classmethod
     def move(
+        cls,
         interpolation_steps,    #amount of interpolation samples
         outdir : str, 
         w : torch.tensor        = None, # if w is None its randomly sampled a point on Z space to perform movement 
@@ -434,10 +437,12 @@ class AlisWrapper:
         for i in range(interpolation_steps):
             img = get_image_from_w_alis(G, ws[i])
             img = prepare_img(img)
-            save_img(img, os.path.join(outdir, f'{i}.jpg'))
+            save_img(img, os.path.join(outdir, f'{i}.png'))
 
 
+    @classmethod
     def run_pca_moving_on_file(
+        cls,
         file_path: str,
         out_folder: str,
         interpolation_steps: int,

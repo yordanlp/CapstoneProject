@@ -19,6 +19,24 @@ services:
       - ./Shared:/app/Shared
     networks:
       - backend
+
+  stylegan2:
+    image: stylegan2
+    ports:
+      - 5001:5001
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - CUDA_HOME=/usr/local/cuda
+    volumes:
+      - ./Shared:/app/Shared
+    networks:
+      - backend
   
   redis:
     image: redis
@@ -34,6 +52,7 @@ services:
     depends_on:
       - redis
       - alis
+      - stylegan2
 
 networks:
   backend:
