@@ -2,6 +2,9 @@
 import os
 import sys
 
+import PIL
+from PIL import Image
+
 import torch
 
 # TODO: to remove 
@@ -30,6 +33,10 @@ def prepare_img(img):
     img = (img + 1) * (255/2)
     img = img.permute(0, 2, 3, 1).clamp(0, 255).to(torch.uint8)[0].cpu().numpy()
     return img
+
+def save_img(img, path):
+    img = prepare_img(img)
+    PIL.Image.fromarray(img, 'RGB').save(path)
 
 # network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl'
 
