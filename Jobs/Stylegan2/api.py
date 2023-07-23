@@ -3,7 +3,7 @@ import sys
 import PIL.Image
 
 
-# TODO: to remove 
+# TODO: to remove before building
 CWD = '/home/erne/Desktop/Capstone/CapstoneProject/Jobs/Stylegan2/'
 os.chdir(CWD)
 #-------------------------
@@ -19,6 +19,8 @@ from config import DevelopmentConfig
 import PIL
 import pickle as pkl
 
+from config import models_config
+
 app = Flask(__name__)
 app.config.from_object(DevelopmentConfig)
 
@@ -26,6 +28,7 @@ app.config.from_object(DevelopmentConfig)
 def random_images():
     params = request.get_json()
     try:
+        model = params['model']
         images_names = params['images_names']
     except:
         return jsonify({
@@ -40,7 +43,7 @@ def random_images():
             'message': 'You can generate up to 10 images'   
         })
 
-    w_list, img_list = Stylegan2Wrapper.get_random_images(n_samples=image_count)
+    w_list, img_list = Stylegan2Wrapper.get_random_images(n_samples=image_count, network_pkl=models_config[model]['checkpoint'])
     img_names, w_names = [], []
     for i in range(image_count):
         filename = images_names[i]
@@ -60,6 +63,7 @@ def random_images():
 @app.route('/run_projection', methods=['GET'])
 def run_projection():
     image_id = request.args.get('image_id')
+    model = request.args.get('model')
     if image_id is None:
         return jsonify ({
             'success' : False,
@@ -74,7 +78,7 @@ def run_projection():
             'message': 'File not found',
         })
 
-    network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl'
+    network_pkl = models_config[model]['checkpoint']
     Stylegan2Wrapper.run_projection_on_file(
         file_path=file_path,
         network_pkl=network_pkl,
@@ -95,6 +99,7 @@ def run_projection():
 def run_pca():
     params = request.get_json()
     vector_id = params['vector_id']
+    model = params['model']
     latent_edits = [( i['principal_component_number'], (i['start_layer'], i['end_layer']), (i['lower_coeff_limit'], i['upper_coeff_limit']) ) for i in params['latent_edits']]
     if vector_id is None:
         return jsonify({
@@ -111,7 +116,7 @@ def run_pca():
         })
 
     Stylegan2Wrapper.run_pca_moving_on_file(
-        network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl',
+        network_pkl = models_config[model]['checkpoint'],
         file_path = vector_path,
         out_folder = app.config['OUTPUT_PCA'], 
         interpolation_steps = 1,
