@@ -190,8 +190,6 @@ def main():
                 'type': 'start'
             }))
             
-            r.publish('worker2backend_queue', json.dumps(data))
-
             # api call
             if data['model'] == 'alis':
                 response = alisApi(data)
