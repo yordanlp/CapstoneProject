@@ -2,6 +2,8 @@ import redis
 import json
 import requests
 from config import Config
+from pprint import pprint
+
 
 '''
 backend2worker queue message structure
@@ -143,7 +145,7 @@ def Stylegan2Api(data):
             'images_names': data['data']['images_names'],
             'model': data['data']['model'],
         }
-        response = requests.get(f"http://{Config.ALIS_ROUTE}:{Config.ALIS_PORT}/random_images", json=jsonData)
+        response = requests.get(f"http://{Config.STYLEGAN2_ROUTE}:{Config.STYLEGAN2_PORT}/random_images", json=jsonData)
         return json.loads(response.content)
     
     elif data['data']['endpoint'] == '/run_projection':
@@ -151,7 +153,7 @@ def Stylegan2Api(data):
             'image_id': data['data']['image_id'],
             'model': data['data']['model'],
         }
-        response = requests.get(f"http://{Config.ALIS_ROUTE}:{Config.ALIS_PORT}/run_projection", params=params)
+        response = requests.get(f"http://{Config.STYLEGAN2_ROUTE}:{Config.STYLEGAN2_PORT}/run_projection", params=params)
         return json.loads(response.content)
 
     elif data['data']['endpoint'] == '/run_pca':
@@ -160,7 +162,7 @@ def Stylegan2Api(data):
             'vector_id': data['data']['vector_id'],
             'latent_edits': data['data']['latent_edits']
         }
-        response = requests.post(f"http://{Config.ALIS_ROUTE}:{Config.ALIS_PORT}/run_pca", json=jsonData)
+        response = requests.post(f"http://{Config.STYLEGAN2_ROUTE}:{Config.STYLEGAN2_PORT}/run_pca", json=jsonData)
         return json.loads(response.content)
 
     else:
@@ -188,6 +190,8 @@ def main():
                 'type': 'start'
             }))
             
+            r.publish('worker2backend_queue', json.dumps(data))
+
             # api call
             if data['model'] == 'alis':
                 response = alisApi(data)
