@@ -9,11 +9,12 @@ import imageio
 from time import perf_counter
 import torch.nn.functional as F
 import copy
+from sklearn.decomposition import PCA
 
 from stylegan2 import dnnlib
 from stylegan2 import legacy
 
-from stylegan2_utils import get_image_from_w, get_network_generator, prepare_img
+from stylegan2_utils import get_image_from_w, get_network_generator, prepare_img, save_img
 
 class Stylegan2Wrapper:
     @classmethod
@@ -46,7 +47,7 @@ class Stylegan2Wrapper:
             img = get_image_from_w(G, ws[i:i+1])
             img = prepare_img(img)
 
-            w_list.append(ws[i].detach())
+            w_list.append(ws[i].detach()[:1])
             img_list.append(img)            
         
         return w_list, img_list
@@ -234,8 +235,11 @@ class Stylegan2Wrapper:
         verbose : bool = False
     ):
         file_name = os.path.basename(file_path)
-
         print("File name:", file_name)
+
+        file_dir = os.path.dirname(file_path)
+        print("File directory:", file_dir)
+        name, ext = file_name.split('.')
         
         if imghdr.what(file_path) is None:
             print(f'File {file_path} is not an image. Skipping it...')
@@ -248,6 +252,92 @@ class Stylegan2Wrapper:
             outdir = out_folder,
             save_video = save_video,
             num_steps = num_steps,
-            out_name = file_name,
+            out_name = name,
             verbose = verbose
         )
+
+    @classmethod
+    def move(
+        cls,
+        network_pkl : str,      #Checkpoint
+        interpolation_steps,    #amount of interpolation samples
+        outdir : str, 
+        w : torch.tensor        = None, # if w is None its randomly sampled a point on Z space to perform movement 
+        device : torch.device   = torch.device('cuda'),
+        n_samples : int         = 10000, #number of samples to compute pca
+        fit_pca : bool          = True, #whether to compute pca or if it's already calculated
+        modify_list : list      = [], #each item is a tuple of the form (principal_component_number, (start_layer, end_layer), (lower_coeff_limit, upper_coeff_limit))
+    ):
+        G = get_network_generator(network_pkl=network_pkl, device=device)
+        G.eval()
+        
+        pca_path = os.path.join(outdir, '..', 'pca.pkl')
+
+        if fit_pca:
+            zs = torch.randn([n_samples, G.z_dim], device=device)
+            ws = G.mapping(zs, c=None)[:, 0, :].detach().cpu().numpy()      
+            pca = PCA(n_components=G.w_dim).fit(ws)
+            with open(pca_path, 'wb') as f:
+                pkl.dump(pca, f)
+        else:
+            with open(pca_path, 'rb') as f:
+                pca = pkl.load(f)
+
+        if w is None:
+            z = torch.randn([1, G.z_dim], device=device)
+            w = G.mapping(z, c=None)[:, 0, :]#torch.nn.functional.one_hot(torch.tensor([cur_class]), n_classes).to(device))
+        
+        ws = w.unsqueeze(0).repeat([interpolation_steps, 1, G.num_ws, 1])
+
+        for (comp, (l_layer, r_layer), (l_coeff, r_coeff)) in modify_list:
+            v = np.zeros((1, G.w_dim))
+            v[0, comp] = 1
+            u = pca.inverse_transform(v) - pca.mean_
+            n_layers = r_layer - l_layer + 1
+            u = torch.tensor(u, device=device)#.unsqueeze(0).repeat([2, n_layers, 1])
+
+            coeff = torch.linspace(l_coeff, r_coeff, interpolation_steps, device=device).reshape(interpolation_steps, 1, 1, 1).repeat([1, 1, n_layers, G.w_dim])		
+            mov = coeff * u
+
+            ws[:, :, l_layer:r_layer+1, :] += mov
+
+        os.makedirs(outdir, exist_ok=True)
+
+        for i in range(interpolation_steps):
+            img = G.synthesis(ws[i], noise_mode='const')
+            save_img(img, os.path.join(outdir, f'{i}.png'))
+
+    @classmethod
+    def run_pca_moving_on_file(
+        cls,
+        network_pkl: str,
+        file_path: str,
+        out_folder: str,
+        interpolation_steps: int,
+        latent_edits: list
+    ):
+        fit_pca = True
+
+        file_name = os.path.basename(file_path)
+
+        name, ext = file_name.split('.')
+
+        if ext != 'pkl':
+            print(f'File {file_path} is not a pickle file. Skipping it...')
+            return
+        
+        with open(file_path, 'rb') as f:
+            w = pkl.load(f)
+        outdir = os.path.join(out_folder, name)
+        os.makedirs(outdir, exist_ok=True)
+
+        Stylegan2Wrapper.move(
+            network_pkl = network_pkl,
+            interpolation_steps = interpolation_steps,
+            outdir = outdir,
+            w = w,
+            modify_list = latent_edits,
+            fit_pca = fit_pca
+        )
+
+        
