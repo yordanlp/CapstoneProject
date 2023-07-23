@@ -91,36 +91,37 @@ def run_projection():
         'vector_id': f"{file_name}.pkl"
     })
         
-# @app.route('/run_pca', methods=['POST'])
-# def run_pca():
-#     params = request.get_json()
-#     vector_id = params['vector_id']
-#     latent_edits = [( i['principal_component_number'], (i['start_layer'], i['end_layer']), (i['lower_coeff_limit'], i['upper_coeff_limit']) ) for i in params['latent_edits']]
-#     if vector_id is None:
-#         return jsonify({
-#             'success': False,
-#             'message': 'Vector not found in request'
-#         })
+@app.route('/run_pca', methods=['POST'])
+def run_pca():
+    params = request.get_json()
+    vector_id = params['vector_id']
+    latent_edits = [( i['principal_component_number'], (i['start_layer'], i['end_layer']), (i['lower_coeff_limit'], i['upper_coeff_limit']) ) for i in params['latent_edits']]
+    if vector_id is None:
+        return jsonify({
+            'success': False,
+            'message': 'Vector not found in request'
+        })
 
-#     vector_path = f"{app.config['OUTPUT_PROJECTION']}/{vector_id}"
+    vector_path = f"{app.config['OUTPUT_PROJECTION']}/{vector_id}"
 
-#     if not os.path.exists(vector_path):
-#         return jsonify({
-#             'success': False,
-#             'message': f'Vector {vector_path} not found'
-#         })
+    if not os.path.exists(vector_path):
+        return jsonify({
+            'success': False,
+            'message': f'Vector {vector_path} not found'
+        })
 
-#     AlisWrapper.run_pca_moving_on_file(
-#         file_path = vector_path,
-#         out_folder = app.config['OUTPUT_PCA'], 
-#         interpolation_steps = 1,
-#         latent_edits = latent_edits
-#     )
+    Stylegan2Wrapper.run_pca_moving_on_file(
+        network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl',
+        file_path = vector_path,
+        out_folder = app.config['OUTPUT_PCA'], 
+        interpolation_steps = 1,
+        latent_edits = latent_edits
+    )
 
-#     return jsonify({
-#         'success' : True,
-#         'message': 'PCA ran successfully'
-#     })
+    return jsonify({
+        'success' : True,
+        'message': 'PCA ran successfully'
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=app.config['DEBUG'])
