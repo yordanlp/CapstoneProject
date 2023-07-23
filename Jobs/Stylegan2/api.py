@@ -4,8 +4,8 @@ import PIL.Image
 
 
 # TODO: to remove before building
-CWD = '/home/erne/Desktop/Capstone/CapstoneProject/Jobs/Stylegan2/'
-os.chdir(CWD)
+# CWD = '/home/erne/Desktop/Capstone/CapstoneProject/Jobs/Stylegan2/'
+# os.chdir(CWD)
 #-------------------------
 
 stylegan2_path = os.path.abspath('./stylegan2')

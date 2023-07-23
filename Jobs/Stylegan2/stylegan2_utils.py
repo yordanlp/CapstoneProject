@@ -12,7 +12,7 @@ import torch
 # os.chdir(CWD)
 # stylegan2_path = os.path.abspath('./stylegan2')
 # sys.path.append(stylegan2_path)
-#-------------------------
+# -------------------------
 
 from stylegan2 import dnnlib
 from stylegan2 import legacy
@@ -38,12 +38,19 @@ def save_img(img, path):
     img = prepare_img(img)
     PIL.Image.fromarray(img, 'RGB').save(path)
 
-# network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl'
+# from config import models_config
 
-# image = prepare_img(get_images_from_z(network_pkl, 1))
+# for model in models_config.keys():
+#     print(model)
+#     network_pkl = models_config[model]['checkpoint']
+#     G = get_network_generator(network_pkl)
+#     print(G.img_resolution)
+#     print(G.num_ws, end='\n\n')
 
-# import cv2
+# # image = prepare_img(get_images_from_z(network_pkl, 1))
 
-# image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-# cv2.imwrite('/home/erne/Desktop/a.png', image)
-# help(cv2.imwrite)
+# # import cv2
+
+# # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+# # cv2.imwrite('/home/erne/Desktop/a.png', image)
+# # help(cv2.imwrite)
