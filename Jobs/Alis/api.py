@@ -103,7 +103,7 @@ def run_pca():
     AlisWrapper.run_pca_moving_on_file(
         file_path = vector_path,
         out_folder = app.config['OUTPUT_PCA'], 
-        interpolation_steps = 1,
+        interpolation_steps = params.get('interpolation_steps', 1),
         latent_edits = latent_edits
     )
 

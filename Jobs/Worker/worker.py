@@ -60,6 +60,7 @@ data field specification for Alis endpoints
 {
     'endpoint': '/run_projection'
     "vector_id": <pkl_vector>,
+    "interpolation_steps": <amount_of_samples (in case of missing is set to 1 by default)> 
     "latent_edits": [
         {
             "principal_component_number": <component>,
@@ -90,7 +91,8 @@ def alisApi(data):
     elif data['data']['endpoint'] == '/run_pca':
         jsonData = {
             'vector_id': data['data']['vector_id'],
-            'latent_edits': data['data']['latent_edits']
+            'latent_edits': data['data']['latent_edits'],
+            'interpolation_steps': data['data'].get('interpolation_steps', 1),
         }
         response = requests.post(f"http://{Config.ALIS_ROUTE}:{Config.ALIS_PORT}/run_pca", json=jsonData)
         return json.loads(response.content)
@@ -127,6 +129,7 @@ data field specification for Stylegan2 endpoints
     'endpoint': '/run_projection'
     'model': <model_name>,
     "vector_id": <pkl_vector>,
+    "interpolation_steps": <amount_of_samples (in case of missing is set to 1 by default)> 
     "latent_edits": [
         {
             "principal_component_number": <component>,
@@ -160,7 +163,8 @@ def Stylegan2Api(data):
         jsonData = {
             'model': data['data']['model'],
             'vector_id': data['data']['vector_id'],
-            'latent_edits': data['data']['latent_edits']
+            'latent_edits': data['data']['latent_edits'],
+            'interpolation_steps': data['data'].get('interpolation_steps', 1),
         }
         response = requests.post(f"http://{Config.STYLEGAN2_ROUTE}:{Config.STYLEGAN2_PORT}/run_pca", json=jsonData)
         return json.loads(response.content)
