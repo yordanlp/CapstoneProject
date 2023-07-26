@@ -119,7 +119,7 @@ def run_pca():
         network_pkl = models_config[model]['checkpoint'],
         file_path = vector_path,
         out_folder = app.config['OUTPUT_PCA'], 
-        interpolation_steps = params['interpolation_steps'],
+        interpolation_steps = params.get('interpolation_steps', 1),
         latent_edits = latent_edits
     )
 
