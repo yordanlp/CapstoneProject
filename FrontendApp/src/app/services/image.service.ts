@@ -31,13 +31,16 @@ export class ImageService {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`, { responseType: 'blob' });
   }
 
-  getGeneratedImage(imageId: number): Observable<any> {
-    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/generated/${imageId}`, { responseType: 'blob' });
+  getGeneratedImage(imageId: number, index: number): Observable<any> {
+    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/generated/${imageId}/${index}`, { responseType: 'blob' });
   }
 
-  runPCA( imageId: number, latentEdits: Array<LatentEdit>, eventId: string ){
+  runPCA( imageId: number, parameters: { interpolationSteps: number, latentEdits: Array<LatentEdit> }, eventId: string ){
+    let interpolationSteps = parameters.interpolationSteps;
+    let latentEdits = parameters.latentEdits;
     const body = {
       imageId,
+      interpolationSteps,
       latentEdits,
       eventId
     };

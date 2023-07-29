@@ -19,6 +19,8 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 import { ImageCardComponent } from "./components/image-card/image-card.component";
 import { ImageTransformComponent } from './components/image-transform/image-transform.component';
 import { LatentEditsPopUpComponent } from './components/latent-edits-pop-up/latent-edits-pop-up.component';
+import { CarouselComponent } from './components/carousel/carousel.component';
+import { LoadingComponent } from './components/loading/loading.component';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -41,7 +43,9 @@ const routes: Routes = [
     HomeComponent,
     ImageCardComponent,
     ImageTransformComponent,
-    LatentEditsPopUpComponent
+    LatentEditsPopUpComponent,
+    CarouselComponent,
+    LoadingComponent
   ],
   imports: [
     BrowserModule,

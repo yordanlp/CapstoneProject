@@ -58,16 +58,16 @@ class ImageService:
             logger.error(str(e))
             return GenericResponse(code=500)
     
-    def get_generated_image( self, image_id ):
+    def get_generated_image( self, image_id, index ):
         try:                
             image = Image.query.get(image_id)
             if image is None:
                 return GenericResponse(errors=['Image not found'], code=404)
             folder_name = image.name.split('.')[0]
-            image_path = os.path.join(app.config['PCA_FOLDER'], folder_name, '0.jpg')
+            image_path = os.path.join(app.config['PCA_FOLDER'], folder_name, str(index) + '.png')
             mime_type, encoding = mimetypes.guess_type(image_path)
             return GenericResponse(data={'image_path': image_path, 'mime_type': mime_type}, code=200)
         except Exception as e:      
-            logger.error(f"An error has ocurred while retrieving the image {image_id}")
+            logger.error(f"An error has ocurred while retrieving the image {image_id} and index {index}")
             logger.error(str(e))
             return GenericResponse(code=500)
