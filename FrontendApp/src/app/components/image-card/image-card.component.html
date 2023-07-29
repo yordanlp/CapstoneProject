@@ -1,2 +1,4 @@
-<img routerLink="/transform/{{imageData.id}}"
+<a [href]="'/transform/' + imageData.id">
+<img 
   class="h-auto max-w-full rounded-lg lg:hover:opacity-50 active:opacity-50 cursor-pointer" [src]="blobUrl" alt="">
+</a>

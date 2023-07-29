@@ -150,11 +150,13 @@
 </aside>
 
 <div class="ml-64 h-full flex items-center justify-center">
-  <img class="h-full" [src]="blobUrl" alt="">
+  <app-carousel (onImageChange)="updateImageUrl($event)" [imagesUrls]="imagesUrl" class="w-full h-full flex justify-center items-center"></app-carousel>
 </div>
 
 
-<div data-dial-init class="fixed right-6 bottom-6 group" (mouseenter)="toggleMenu(true)"
+
+
+<div data-dial-init class="fixed right-6 bottom-6 group z-40" (mouseenter)="toggleMenu(true)"
   (mouseleave)="toggleMenu(false)">
   <div id="speed-dial-menu-default" class="flex flex-col items-center mb-4 space-y-2" [class.hidden]="!menuOpen">
     <button type="button" data-tooltip-target="tooltip-share" data-tooltip-placement="left"
@@ -187,7 +189,7 @@
       Print
       <div class="tooltip-arrow" data-popper-arrow></div>
     </div>
-    <button type="button" data-tooltip-target="tooltip-download" data-tooltip-placement="left"
+    <button (click)="downloadImage()" type="button" data-tooltip-target="tooltip-download" data-tooltip-placement="left"
       class="flex justify-center items-center w-[52px] h-[52px] text-gray-500 hover:text-gray-900 bg-white rounded-full border border-gray-200 dark:border-gray-600 shadow-sm dark:hover:text-white dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:focus:ring-gray-400">
       <svg aria-hidden="true" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
         xmlns="http://www.w3.org/2000/svg">
@@ -216,6 +218,19 @@
       Copy
       <div class="tooltip-arrow" data-popper-arrow></div>
     </div>
+    <button type="button" data-tooltip-target="tooltip-save" data-tooltip-placement="left"
+      class="flex justify-center items-center w-[52px] h-[52px] text-gray-500 hover:text-gray-900 bg-white rounded-full border border-gray-200 dark:border-gray-600 dark:hover:text-white shadow-sm dark:text-gray-400 hover:bg-gray-50 dark:bg-gray-700 dark:hover:bg-gray-600 focus:ring-4 focus:ring-gray-300 focus:outline-none dark:focus:ring-gray-400">
+      <svg class="w-5 h-5 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M14.707 7.793a1 1 0 0 0-1.414 0L11 10.086V1.5a1 1 0 0 0-2 0v8.586L6.707 7.793a1 1 0 1 0-1.414 1.414l4 4a1 1 0 0 0 1.416 0l4-4a1 1 0 0 0-.002-1.414Z"/>
+        <path d="M18 12h-2.55l-2.975 2.975a3.5 3.5 0 0 1-4.95 0L4.55 12H2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2Zm-3 5a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
+    </svg>
+      <span class="sr-only">Save</span>
+    </button>
+    <div id="tooltip-save" role="tooltip"
+      class="absolute z-10 invisible inline-block w-auto px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+      Save
+      <div class="tooltip-arrow" data-popper-arrow></div>
+    </div>
   </div>
   <button type="button" data-dial-toggle="speed-dial-menu-default" aria-controls="speed-dial-menu-default"
     aria-expanded="false"
@@ -229,3 +244,5 @@
 </div>
 
 <app-latent-edits-pop-up #latentEditsModal (updateLatentEdits)="runPca($event)"></app-latent-edits-pop-up>
+
+<app-loading [show]="loading"></app-loading>
