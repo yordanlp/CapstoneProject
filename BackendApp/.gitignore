@@ -21,4 +21,5 @@ backendenv/
 logs/
 
 #python env
+/env/
 /venv/
