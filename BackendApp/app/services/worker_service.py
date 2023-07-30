@@ -78,5 +78,32 @@ class WorkerService:
             logger.error("An error has ocurred trying to generate the projection of the image")
             logger.error(str(e))
             return GenericResponse(code=500)
+        
+    def generate_random_images(self, model, number_of_images, user_id, event_id):
+        try:                
+            print("Generating random images")
+
+            baseModel = 'alis'
+            if model != 'alis':
+                baseModel = 'stylegan2'
+ 
+            data = {
+                'eventId': event_id,
+                'userId': user_id,
+                'model': baseModel,
+                'data': {
+                    "endpoint": '/random_images',
+                    "model": model,
+                    "images_names": [uuid.uuid4().hex for i in range(number_of_images)]
+                }
+            }
+
+            print(data)
+            redis_conn.publish('backend2worker_queue', json.dumps(data))
+            return GenericResponse(data=data, code=200)
+        except Exception as e:      
+            logger.error("An error has ocurred trying to generate the random images")
+            logger.error(str(e))
+            return GenericResponse(code=500)
 
         

@@ -31,6 +31,16 @@ export class ImageService {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`, { responseType: 'blob' });
   }
 
+  generateRandomImages( model: string, numberOfImages: number, userId: string, eventId: string ): Observable<any>{
+    const body = {
+      model,
+      numberOfImages,
+      userId,
+      eventId
+    };
+    return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/generateRandom`, body);
+  }
+
   getGeneratedImage(imageId: number, index: number): Observable<any> {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/generated/${imageId}/${index}`, { responseType: 'blob' });
   }

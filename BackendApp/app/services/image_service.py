@@ -71,3 +71,21 @@ class ImageService:
             logger.error(f"An error has ocurred while retrieving the image {image_id} and index {index}")
             logger.error(str(e))
             return GenericResponse(code=500)
+        
+    def asociate_image_to_user( self, image_name, user_id, model ):
+        self.db.session.begin_nested()
+        try:       
+            resulf = self.get_image_by_name(image_name)
+            if resulf.data != None:
+                return GenericResponse()
+            new_image = Image(name=image_name, user_id=user_id, mime_type='image/jpeg', model=model, status_process='FINISH')
+            self.db.session.add(new_image)
+            self.db.session.commit()
+            return GenericResponse(data=new_image)
+        except Exception as e:      
+            self.db.session.rollback()
+            logger.error(f"An error has ocurred while asociating the image {image_name} to user {user_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        finally:
+            self.db.session.close()

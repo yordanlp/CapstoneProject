@@ -35,8 +35,20 @@ def pca():
     interpolation_steps = request.json.get('interpolationSteps')
     latent_edits = request.json.get('latentEdits')
     event_id = request.json.get('eventId')
-    print("HERE")
     result = worker_service.run_pca(image_id, interpolation_steps, latent_edits, event_id)
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
+
+@images_controller.route('/generateRandom', methods=['POST'])
+@jwt_required()
+def generate_random():
+    # getting user id from jwt instead of request
+    user_data = get_jwt_identity()
+    model = request.json.get('model')
+    number_of_images = request.json.get('numberOfImages')
+    user_id = request.json.get('userId')
+    event_id = request.json.get('eventId')
+    result = worker_service.generate_random_images(model, number_of_images, user_id, event_id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 

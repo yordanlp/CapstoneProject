@@ -26,11 +26,15 @@
         <path d="M8 6.32142L4 10L0 6.32142L0.69323 5.67114L3.5 8.25215L3.5 0H4.5L4.5 8.23964L7.29289 5.67114L8 6.32142Z"
           fill="#1C2B33"></path>
       </svg>
-      <span>Find a photo in the gallery, or</span>
+      <span>Find a photo in the gallery, </span>
       <span role="presentation" tabindex="0">
         <label for="image" class="ml-1 text-blue-700 underline cursor-pointer">Upload an image</label>
         <input id="image" (change)="onFileSelected($event)" accept="image/png,.png,image/jpeg,.jpeg,.jpg" type="file"
           tabindex="-1" style="display: none;">
+      </span>
+      <span>&nbsp;or</span>
+      <span (click)="showRandomImagePopup()" class="cursor-pointer" role="presentation" tabindex="0">
+        <label class="ml-1 text-blue-700 underline">Generate a random image</label>
       </span>
     </div>
   </div>
@@ -39,55 +43,6 @@
 
   <div class="flex items-center justify-center" *ngFor="let image of images.data">
     <app-image-card [imageData]="image"></app-image-card>
-  </div>
-
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-1.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-2.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-3.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-4.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-5.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-6.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-7.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-8.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-9.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-10.jpg"
-      alt="">
-  </div>
-  <div>
-    <img class="h-auto max-w-full rounded-lg" src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image-11.jpg"
-      alt="">
   </div>
 </div>
 
@@ -112,27 +67,47 @@
           </svg>
           <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Select the corresponding model for the
             image</h3>
-          <button (click)="selectModel('alis')" type="button"
+          <button *ngFor="let model of models" (click)="selectModel(model.name)" type="button"
             class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Landscapes</button>
-          <button (click)="selectModel('cars')" type="button"
-          class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-          Cars</button>
-          <button (click)="selectModel('faces')" type="button"
+            {{model.description}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+
+<dialog id="randomImagePopup" class="p-0 rounded-lg">
+  <div id="popup-modal" tabindex="-1"
+    class="overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <button type="button" (click)="randomImageDialog?.close()"
+          class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+          <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+          </svg>
+          <span class="sr-only">Close modal</span>
+        </button>
+        <div class="p-6 text-center">
+          <svg class="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Select the corresponding model for the
+            image(s)</h3>
+          <label for="models" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select an model</label>
+          <select #modelSelect id="models" class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <option *ngFor="let model of models; let i = index" [value]="model.name" [selected]="i == 0">{{model.description}}</option>
+          </select>
+          <label for="randomImagesNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" style="text-wrap: nowrap">Amount</label>
+          <input #numberOfImages id="randomImagesNumber" type="range" name="interpolationSteps" min="1" max="10" [(ngModel)]="randomImagesNumber" [value]="randomImagesNumber" class="w-full h-2 mb-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-white-700">
+          <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{randomImagesNumber}}</label>
+          <button (click)="generateRandomImages(modelSelect.value, randomImagesNumber)" type="button"
             class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Faces</button>
-          <button (click)="selectModel('cats')" type="button"
-            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Cats</button>
-          <button (click)="selectModel('dogs')" type="button"
-            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Dogs</button>
-          <button (click)="selectModel('wild')" type="button"
-            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Wild</button>
-          <button (click)="selectModel('churches')" type="button"
-            class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
-            Churches</button>
+            Generate Images</button>
         </div>
       </div>
     </div>
