@@ -173,6 +173,27 @@ def Stylegan2Api(data):
         raise Exception(f"Unknown endpoint {data['data']['endpoint']} for Stylegan2 model")
 
 
+'''
+data field specification for Superresolution endpoints
+
+- /run_superresolutiom
+{
+    'endpoint': '/run_superresolution'
+    'image_id': <image_id>
+}
+'''
+def SuperresolutionApi(data):
+    if data['data']['endpoint'] == '/run_superresolution':
+        params = {
+            'image_id': data['data']['image_id']
+        }
+        response = requests.get(f"http://{Config.SUPERRESOLUTION_ROUTE}:{Config.SUPERRESOLUTION_PORT}/run_superresolution", params=params)
+        return json.loads(response.content)
+
+    else:
+        raise Exception(f"Unknown endpoint {data['data']['endpoint']} for Superresolution model")
+
+
 def main():
     r = redis.Redis(host=Config.REDIS_ROUTE, port=Config.REDIS_PORT)
 
@@ -199,6 +220,8 @@ def main():
                 response = alisApi(data)
             elif data['model'] == 'stylegan2':
                 response = Stylegan2Api(data)
+            elif data['model'] == 'superresolution':
+                response = SuperresolutionApi(data)
             else:
                 raise NotImplementedError(f'Not implemented support for model {data["model"]}')
 
