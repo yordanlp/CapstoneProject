@@ -15,6 +15,11 @@
           <div class="p-6 text-center">
             <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Input the parameters to transform the image</h3>
               <form>
+                <div class="flex items-center gap-2 w-1/2">
+                    <label for="intSteps" class="block mb-4 text-sm font-medium text-gray-900 dark:text-white" style="text-wrap: nowrap">Interpolation Steps</label>
+                    <input id="intSteps" type="range" name="interpolationSteps" min="1" max="10" [(ngModel)]="interpolationSteps" [value]="interpolationSteps" class="w-full h-2 mb-4 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-white-700">
+                    <label class="block mb-4 text-sm font-medium text-gray-900 dark:text-white">{{interpolationSteps}}</label>
+                </div>
                 <div class="flex flex-row gap-6 mb-6">
                     <div>
                         <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Principal Component</label>

@@ -24,13 +24,18 @@ class WorkerService:
 
             image = result.data
 
+            model = 'alis'
+            if image.model != 'alis':
+                model = 'stylegan2'
+
             data = {
                 'eventId': uuid.uuid4().hex,
                 'userId': image.user_id,
-                'model': 'alis',
+                'model': model,
                 'data': {
                     'endpoint': '/run_projection',
-                    'image_id': image.name
+                    'image_id': image.name,
+                    'model' : image.model
                 }
             }
             image.status_process = 'START'
@@ -42,7 +47,7 @@ class WorkerService:
             logger.error(str(e))
             return GenericResponse(code=500)
         
-    def run_pca(self, image_id, latent_edits, event_id) -> GenericResponse:
+    def run_pca(self, image_id, interpolation_steps, latent_edits, event_id) -> GenericResponse:
         try:                
             result = image_service.get_image_by_id(image_id)
             print("Running PCA")
@@ -50,13 +55,20 @@ class WorkerService:
                 return result
             image = result.data
             vectorid = image.name.split('.')[0] + '.pkl'
+
+            model = 'alis'
+            if image.model != 'alis':
+                model = 'stylegan2'
+ 
             data = {
                 'eventId': event_id,
                 'userId': image.user_id,
-                'model': 'alis',
+                'model': model,
                 'data': {
                     "endpoint": '/run_pca',
                     "vector_id": vectorid,
+                    "model": image.model,
+                    "interpolation_steps": int(interpolation_steps),
                     "latent_edits": latent_edits
                 }
             }

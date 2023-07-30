@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { LatentEdit } from '../../models/latent-edit.model';
 
 @Component({
@@ -6,12 +6,18 @@ import { LatentEdit } from '../../models/latent-edit.model';
   templateUrl: './latent-edits-pop-up.component.html',
   styleUrls: ['./latent-edits-pop-up.component.css']
 })
-export class LatentEditsPopUpComponent implements OnInit{
+export class LatentEditsPopUpComponent implements OnInit, AfterViewInit{
 
   modalDialog: HTMLDialogElement | null = null;
   latentEdit: LatentEdit;
+  interpolationSteps: number = 1;
   latentEdits: Array<LatentEdit> = Array();
-  @Output() updateLatentEdits = new EventEmitter<Array<LatentEdit>>();
+  @Output() updateLatentEdits = new EventEmitter<{
+      interpolationSteps: number
+      latentEdits: Array<LatentEdit>
+  }>();
+
+  @Output() close = new EventEmitter<any>();
 
   constructor() {
     this.latentEdit = {
@@ -22,6 +28,9 @@ export class LatentEditsPopUpComponent implements OnInit{
       upper_coeff_limit: 0
     }
   }
+  ngAfterViewInit(): void {
+    this.modalDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
+  }
   showModal(){
     this.latentEdit = {
       principal_component_number: 0,
@@ -30,11 +39,17 @@ export class LatentEditsPopUpComponent implements OnInit{
       lower_coeff_limit: 0,
       upper_coeff_limit: 0
     }
+    if( this.modalDialog == null )
+      this.modalDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
     this.modalDialog?.showModal();
   }
 
   submitLatentEdits(){
     console.log("Latent Edits", this.latentEdits);
+    this.updateLatentEdits.emit({
+      interpolationSteps: this.interpolationSteps,
+      latentEdits: this.latentEdits
+    });
     this.latentEdit = {
       principal_component_number: 0,
       start_layer: 0,
@@ -42,8 +57,8 @@ export class LatentEditsPopUpComponent implements OnInit{
       lower_coeff_limit: 0,
       upper_coeff_limit: 0
     }
-    this.updateLatentEdits.emit(this.latentEdits);
     this.latentEdits = [];
+    this.interpolationSteps = 1;
     this.closeModal();
   }
 
@@ -65,10 +80,11 @@ export class LatentEditsPopUpComponent implements OnInit{
 
   closeModal(){
     this.modalDialog?.close();
+    this.close.emit();
   }
 
   ngOnInit(): void {
-    this.modalDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
+    
   }
 
 }

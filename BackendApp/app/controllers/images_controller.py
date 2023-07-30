@@ -32,15 +32,17 @@ def pca():
     # getting user id from jwt instead of request
     user_data = get_jwt_identity()
     image_id = request.json.get('imageId')
+    interpolation_steps = request.json.get('interpolationSteps')
     latent_edits = request.json.get('latentEdits')
     event_id = request.json.get('eventId')
-    result = worker_service.run_pca(image_id, latent_edits, event_id)
+    print("HERE")
+    result = worker_service.run_pca(image_id, interpolation_steps, latent_edits, event_id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 
-@images_controller.route('/generated/<int:image_id>', methods=['GET'])
+@images_controller.route('/generated/<int:image_id>/<int:index>', methods=['GET'])
 @jwt_required()
-def get_generated(image_id):
+def get_generated(image_id, index):
     user_data = get_jwt_identity()
     user_id = user_data['id']
 
@@ -54,7 +56,7 @@ def get_generated(image_id):
     if result.data is None or result.data.user_id != user_id:
         return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
 
-    result = image_service.get_generated_image(image_id)
+    result = image_service.get_generated_image(image_id, index)
 
     if result.success == True:
         return send_file(result.data['image_path'], mimetype=result.data['mime_type'])
