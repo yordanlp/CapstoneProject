@@ -7,3 +7,6 @@ class Config:
 
     STYLEGAN2_ROUTE = 'stylegan2'
     STYLEGAN2_PORT = 5001
+
+    SUPERRESOLUTION_ROUTE = 'superresolution'
+    SUPERRESOLUTION_PORT = 5002
