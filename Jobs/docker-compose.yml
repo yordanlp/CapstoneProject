@@ -38,6 +38,24 @@ services:
     networks:
       - backend
   
+  superresolution:
+    image: superresolution
+    ports:
+      - 5002:5002
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - CUDA_HOME=/usr/local/cuda
+    volumes:
+      - ./Shared:/app/Shared
+    networks:
+      - backend
+
   redis:
     image: redis
     ports:
@@ -53,6 +71,7 @@ services:
       - redis
       - alis
       - stylegan2
+      - superresolution
 
 networks:
   backend:
