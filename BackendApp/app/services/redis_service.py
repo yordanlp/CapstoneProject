@@ -4,12 +4,14 @@ from .image_service import ImageService
 from .user_service import UserService
 from ..models import User, GenericResponse, Image
 from ..utils import *
-from app import logger, app, redis_conn
+from app import logger, app
 from ..socket import socketio
 import os
 import uuid
 import imghdr
 import threading
+from pprint import pprint
+import redis
 
 user_service = UserService(db)
 image_service = ImageService(db)
@@ -20,11 +22,13 @@ class RedisService:
         self.db = db
         self.seen_messages = {}
         self.lock = threading.Lock()
+        with app.app_context():
+            self.redis_conn = redis.Redis(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'])
 
     def listen_to_redis(self):
         with app.app_context():
             try:                
-                pubsub = redis_conn.pubsub()
+                pubsub = self.redis_conn.pubsub()
                 pubsub.subscribe('worker2backend_queue')
 
                 print("start listening to queue")
@@ -47,13 +51,14 @@ class RedisService:
 
     def process_message(self, data):
         with self.lock:
-            event = data['triggerMessage']
-            if event is None:
+            if data['type'] != 'finish':
                 return
+            assert 'triggerMessage' in data.keys()
+            event = data['triggerMessage']
             user_id = event['userId']
             event_id = event['eventId']
             message_key = self.get_message_key(data)
-            value_redis = redis_conn.get(message_key)
+            value_redis = self.redis_conn.get(message_key)
             if value_redis == None:
                 value_redis = 0
             print("--------------MESSAGE KEY-------------------: " + message_key + " " + str(value_redis))
