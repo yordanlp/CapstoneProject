@@ -27,16 +27,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   randomImageDialog: HTMLDialogElement | null = null;
   models: Model[] = [
     {
+      description: "Faces",
+      name: "faces"
+    },
+    {
       description: 'Landscapes',
       name: 'alis'
     },
     {
       description: "Cars",
       name: 'cars'
-    },
-    {
-      description: "Faces",
-      name: "faces"
     },
     {
       description: "Cats",
