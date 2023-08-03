@@ -58,5 +58,7 @@ socketio.init_app(app)
 # start a new thread that listens to Redis
 from .services import RedisService
 redis_service = RedisService(db)
-t = threading.Thread(target=redis_service.listen_to_redis)
-t.start()
+if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    print("CREANDO THREAD")
+    t = threading.Thread(target=redis_service.listen_to_redis)
+    t.start()
