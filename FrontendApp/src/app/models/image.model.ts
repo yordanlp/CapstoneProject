@@ -2,5 +2,6 @@ export interface Image {
   id: number,
   name: string,
   user_id: number,
-  mime_type: string
+  mime_type: string,
+  model: string
 }

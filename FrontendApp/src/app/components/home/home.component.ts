@@ -55,24 +55,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       name: "churches"
     }
   ];
+  images: Image[] = [];
+  allImages: Image[] = [];
   randomImagesNumber: number = 1;
   socket = io(AppConfig.settings.apiServer.host);
 
-  filterCategories: FilterCategories[] = [
-    {
-      name: 'All categories',
-      value: '*',
-      selected: true
-    },
-    {
-      name: 'Faces',
-      value: 'FACES'
-    },
-    {
-      name: 'Landscapes',
-      value: 'LANDSCAPES'
-    }
-  ]
+  filterCategories: FilterCategories[] = []
 
   generateRandomImages( model: string, amount: number){
     console.log(model, amount);
@@ -113,16 +101,51 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   getAllImages(){
     this.imagesObservable$ = this.imageService.getImages();
     this.imagesSubscription = this.imagesObservable$?.subscribe(
-      data => console.log(data)
+      data => {
+        console.log(data)
+        this.images = data.data;
+        this.allImages = [...this.images];
+        console.log(this.images);
+      }
       , error => console.error(error)
     ) ?? null;
   }
 
   constructor(private imageService: ImageService, private userService: UserService) {
-    
+    this.filterCategories = [
+      {
+        name: 'All categories',
+        value: '*',
+        selected: true
+      },
+      ...this.models.map(m => {
+        return {
+          name: m.description,
+          value: m.name,
+          selected: false
+        };
+      })
+    ];
+
     //this.socket.on('message', (args) => console.log(args));
+  }
+
+  filterBy( category: FilterCategories ){
+    if( category.value == '*' ){
+      this.filterCategories.forEach(c => c.selected = false);
+      category.selected = true;
+    }
+    else
+      category.selected = !category.selected;
+  
+    this.images = this.allImages.filter(i => {
+      let model = i.model;
+      let filter = this.filterCategories.filter(f => f.value == model)[0];
+      return filter.selected || category.value == '*';
+    });
 
   }
+
   ngAfterViewInit(): void {
     this.modelDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
     this.randomImageDialog = document.querySelector("#randomImagePopup") as HTMLDialogElement;
