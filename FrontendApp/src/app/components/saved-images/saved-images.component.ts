@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { io } from 'socket.io-client';
 import { FilterCategories } from 'src/app/models/filter-categories.model';
@@ -13,7 +13,7 @@ import { UserService } from 'src/app/services/user.service';
   templateUrl: './saved-images.component.html',
   styleUrls: ['./saved-images.component.css']
 })
-export class SavedImagesComponent {
+export class SavedImagesComponent implements OnInit, OnDestroy {
   imagesObservable$: Observable<any> | null = null;
   imagesSubscription: Subscription | null = null;
   //socket = io(AppConfig.settings.apiServer.host);
@@ -50,6 +50,18 @@ export class SavedImagesComponent {
     ];
 
     //this.socket.on('message', (args) => console.log(args));
+  }
+  onImageDeleted(event: SavedImage) {
+    const removeElement = (container :  SavedImage[]) => {
+      const index = container.findIndex(image => image.id == event.id);
+      if (index !== -1)
+        container.splice(index, 1);
+    };
+
+    removeElement(this.images);
+    removeElement(this.allImages);
+
+    console.log("FILTERING DELETED IMAGE");
   }
 
   ngOnDestroy(): void {

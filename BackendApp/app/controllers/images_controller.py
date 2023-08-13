@@ -130,6 +130,47 @@ def get_image(image_id):
     image_path = os.path.join(app.config['IMAGES_FOLDER'], result.data.name)
     return send_file(image_path, mimetype=result.data.mime_type)
 
+@images_controller.route('/image/<int:image_id>', methods=['DELETE'])
+@jwt_required()
+def delete_image(image_id):
+    user_data = get_jwt_identity()
+    user_id = user_data['id']
+
+    # Get the image from the database
+    result = image_service.get_image_by_id(image_id)
+
+    if not result.success:
+        return make_response(jsonify(object_to_dict(result)), result.code)
+    
+    # If the image does not exist or does not belong to the user, return a 401 error
+    if result.data is None or result.data.user_id != user_id:
+        return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
+    
+    # Otherwise, proceed to delete the image
+    result = image_service.delete_image(image_id)
+    return make_response(object_to_dict(result), result.code)
+
+@images_controller.route('/saved/image/<int:image_id>', methods=['DELETE'])
+@jwt_required()
+def delete_saved_image(image_id):
+    user_data = get_jwt_identity()
+    user_id = user_data['id']
+
+    # Get the image from the database
+    result = image_service.get_saved_image_by_id(image_id)
+
+    if not result.success:
+        return make_response(jsonify(object_to_dict(result)), result.code)
+    
+    # If the image does not exist or does not belong to the user, return a 401 error
+    if result.data is None or result.data.user_id != user_id:
+        return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
+    
+    # Otherwise, proceed to delete the image
+    result = image_service.delete_saved_image(image_id)
+    return make_response(object_to_dict(result), result.code)
+
+
 @images_controller.route('/saved/image/<int:image_id>', methods=['GET'])
 @jwt_required()
 def get_saved_image(image_id):
@@ -137,6 +178,7 @@ def get_saved_image(image_id):
     user_id = user_data['id']
 
     # Get the image from the database
+
     result = image_service.get_saved_image_by_id(image_id)
 
     if not result.success:

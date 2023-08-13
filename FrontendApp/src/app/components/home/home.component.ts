@@ -130,6 +130,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     //this.socket.on('message', (args) => console.log(args));
   }
 
+  onImageDeleted(event: Image) {
+    const removeElement = (container :  Image[]) => {
+      const index = container.findIndex(image => image.id == event.id);
+      if (index !== -1)
+        container.splice(index, 1);
+    };
+
+    removeElement(this.images);
+    removeElement(this.allImages);
+
+    console.log("FILTERING DELETED IMAGE");
+  }
+
   filterBy( category: FilterCategories ){
     if( category.value == '*' ){
       this.filterCategories.forEach(c => c.selected = false);
