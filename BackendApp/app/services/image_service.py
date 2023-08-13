@@ -1,5 +1,5 @@
 import mimetypes
-from ..models import User, GenericResponse, Image
+from ..models import User, GenericResponse, Image, SavedImage
 from ..utils import *
 from app import logger, app
 import os
@@ -16,7 +16,7 @@ class ImageService:
             file_extension = imghdr.what(image)
             if not file_extension:
                 return GenericResponse(errors=['The file uploaded is not an image'])
-            image_name = uuid.uuid4().hex + '.' + file_extension
+            image_name = uuid.uuid4().hex + '.' + '.png'
             new_image = Image(name=image_name, user_id=user_id, mime_type=image.mimetype, model=model)
             self.db.session.add(new_image)
             image.save(os.path.join(app.config['IMAGES_FOLDER'], image_name))
@@ -27,6 +27,22 @@ class ImageService:
             logger.error(str(e))
             return GenericResponse(code=500)
 
+    def save_pca_image(self, image, parent_image_id, user_id) -> GenericResponse:
+        try:                
+            file_extension = imghdr.what(image)
+            if not file_extension:
+                return GenericResponse(errors=['The file uploaded is not an image'])
+            image_name = uuid.uuid4().hex + '.' + file_extension
+            new_image = SavedImage(name=image_name, user_id=user_id, parent_image_id=parent_image_id, status_superresolution="NONE")
+            self.db.session.add(new_image)
+            image.save(os.path.join(app.config['IMAGES_FOLDER'], image_name))
+            self.db.session.commit()
+            return GenericResponse(data=new_image)
+        except Exception as e:      
+            logger.error("An error has ocurred while saving the pca image")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
     def get_images_by_user(self, user_id):
         try:                
             images = Image.query.filter_by(user_id=user_id).all()
@@ -36,6 +52,15 @@ class ImageService:
             logger.error(str(e))
             return GenericResponse(code=500)
         
+    def get_saved_images_by_user(self, user_id):
+        try:                
+            images = SavedImage.query.filter_by(user_id=user_id).all()
+            return GenericResponse(data=images)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the saved images for user {user_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+    
     def get_image_by_id(self, image_id) -> GenericResponse:
         try:                
             image = Image.query.get(image_id)
@@ -46,7 +71,32 @@ class ImageService:
             logger.error(f"An error has ocurred while retrieving the image {image_id}")
             logger.error(str(e))
             return GenericResponse(code=500)
-        
+
+    def get_saved_image_by_id(self, image_id) -> GenericResponse:
+        try:                
+            image = SavedImage.query.get(image_id)
+            if image is None:
+                return GenericResponse(errors=['Saved Image not found'], code=404)
+            return GenericResponse(data=image)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the saved image {image_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)    
+
+    def get_superresolution_image(self, image_id) -> GenericResponse:
+        try:                
+            image = SavedImage.query.get(image_id)
+            if image is None:
+                return GenericResponse(errors=['Saved Image not found'], code=404)
+            file_path = os.path.join(app.config['UPSCALED_IMAGES_FOLDER'], image.name)
+            if not os.path.exists(file_path):
+                return GenericResponse(errors=['Superresolution Image not found'], code=404)
+            return GenericResponse(data=image)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the upscaled image {image_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)    
+    
     def get_image_by_name(self, name) -> GenericResponse:
         try:                
             image = Image.query.filter_by(name=name).first()
@@ -55,6 +105,17 @@ class ImageService:
             return GenericResponse(data=image)
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the image {name}")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
+    def get_saved_image_by_name(self, name) -> GenericResponse:
+        try:                
+            image = SavedImage.query.filter_by(name=name).first()
+            if image is None:
+                return GenericResponse(errors=['Saved Image not found'], code=404)
+            return GenericResponse(data=image)
+        except Exception as e:      
+            logger.error(f"An error has ocurred while retrieving the saved image {name}")
             logger.error(str(e))
             return GenericResponse(code=500)
     

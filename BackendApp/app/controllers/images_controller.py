@@ -26,6 +26,17 @@ def upload_image():
         worker_service.generate_projection(result.data.id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
+@images_controller.route('/save', methods=['POST'])
+@jwt_required()
+def save_image():
+    # getting user id from jwt instead of request
+    user_data = get_jwt_identity()
+    image = request.files['image']
+    parent_image_id = request.form['parentImageId']
+    result = image_service.save_pca_image(image, parent_image_id, user_data['id'])
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
+
 @images_controller.route('/pca', methods=['POST'])
 @jwt_required()
 def pca():
@@ -36,6 +47,16 @@ def pca():
     latent_edits = request.json.get('latentEdits')
     event_id = request.json.get('eventId')
     result = worker_service.run_pca(image_id, interpolation_steps, latent_edits, event_id)
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
+@images_controller.route('/superresolution', methods=['POST'])
+@jwt_required()
+def superresolution():
+    # getting user id from jwt instead of request
+    user_data = get_jwt_identity()
+    image_id = request.json.get('imageId')
+    event_id = request.json.get('eventId')
+    result = worker_service.run_superresolution(image_id, event_id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 
@@ -82,6 +103,13 @@ def list_images():
     result = image_service.get_images_by_user(user_data['id'])
     return make_response(jsonify(object_to_dict(result)), result.code)
 
+@images_controller.route('/saved/list', methods=['GET'])
+@jwt_required()
+def list_saved_images():
+    user_data = get_jwt_identity()
+    result = image_service.get_saved_images_by_user(user_data['id'])
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
 @images_controller.route('/image/<int:image_id>', methods=['GET'])
 @jwt_required()
 def get_image(image_id):
@@ -105,7 +133,6 @@ def get_image(image_id):
 @images_controller.route('/image/<int:image_id>', methods=['DELETE'])
 @jwt_required()
 def delete_image(image_id):
-    print("llamando a delete")
     user_data = get_jwt_identity()
     user_id = user_data['id']
 
@@ -122,3 +149,46 @@ def delete_image(image_id):
     # Otherwise, proceed to delete the image
     result = image_service.delete_image(image_id)
     return make_response(object_to_dict(result), result.code)
+
+
+@images_controller.route('/saved/image/<int:image_id>', methods=['GET'])
+@jwt_required()
+def get_saved_image(image_id):
+    user_data = get_jwt_identity()
+    user_id = user_data['id']
+
+    # Get the image from the database
+
+    result = image_service.get_saved_image_by_id(image_id)
+
+    if not result.success:
+        return make_response(jsonify(object_to_dict(result)), result.code)
+
+    # If the image does not exist or does not belong to the user, return a 401 error
+    if result.data is None or result.data.user_id != user_id:
+        return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
+
+    # Otherwise, return the image file
+    image_path = os.path.join(app.config['IMAGES_FOLDER'], result.data.name)
+    return send_file(image_path, mimetype='image/jpeg')
+
+@images_controller.route('/superresolution/image/<int:image_id>', methods=['GET'])
+@jwt_required()
+def get_superresolution_image(image_id):
+    user_data = get_jwt_identity()
+    user_id = user_data['id']
+    
+    # Get the image from the database
+    result = image_service.get_superresolution_image(image_id)
+
+    print(object_to_dict(result))
+    if not result.success:
+        return make_response(jsonify(object_to_dict(result)), result.code)
+
+    # If the image does not exist or does not belong to the user, return a 401 error
+    if result.data is None or result.data.user_id != user_id:
+        return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
+
+    # Otherwise, return the image file
+    image_path = os.path.join(app.config['UPSCALED_IMAGES_FOLDER'], result.data.name)
+    return send_file(image_path, mimetype='image/jpeg')

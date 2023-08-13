@@ -10,10 +10,6 @@ import type { CarouselItem, CarouselOptions, CarouselInterface, IndicatorItem } 
 export class CarouselComponent implements OnInit, AfterViewInit{
   
   private _imagesUrls: string[] = [
-    "https://flowbite.com/docs/images/carousel/carousel-1.svg",
-    "https://flowbite.com/docs/images/carousel/carousel-2.svg",
-    "https://flowbite.com/docs/images/carousel/carousel-3.svg",
-    "https://flowbite.com/docs/images/carousel/carousel-4.svg"
   ];
   @Input() 
   set imagesUrls(value: string[]) {
@@ -57,6 +53,7 @@ export class CarouselComponent implements OnInit, AfterViewInit{
       onNext: (carousel: CarouselInterface) => {
           console.log('next slider item is shown', carousel);
           const imageUrl = this.imagesUrls[carousel._activeItem.position];
+          console.log(carousel);
           this.onImageChange.emit(imageUrl);
       },
       onPrev: (carousel: CarouselInterface) => {

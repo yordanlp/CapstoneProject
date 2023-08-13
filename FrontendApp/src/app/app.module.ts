@@ -21,6 +21,9 @@ import { ImageTransformComponent } from './components/image-transform/image-tran
 import { LatentEditsPopUpComponent } from './components/latent-edits-pop-up/latent-edits-pop-up.component';
 import { CarouselComponent } from './components/carousel/carousel.component';
 import { LoadingComponent } from './components/loading/loading.component';
+import { SavedImagesComponent } from './components/saved-images/saved-images.component';
+import { SavedImageCardComponent } from './components/saved-image-card/saved-image-card.component';
+import { SuperResolutionComponent } from './components/super-resolution/super-resolution.component';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -31,6 +34,8 @@ const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'login', component: LoginComponent },
   { path: 'transform/:id', component: ImageTransformComponent, canActivate: [AuthGuard] },
+  { path: 'saved', component: SavedImagesComponent, canActivate: [AuthGuard] },
+  { path: 'superresolution/:id', component: SuperResolutionComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
 
@@ -45,7 +50,10 @@ const routes: Routes = [
     ImageTransformComponent,
     LatentEditsPopUpComponent,
     CarouselComponent,
-    LoadingComponent
+    LoadingComponent,
+    SavedImagesComponent,
+    SavedImageCardComponent,
+    SuperResolutionComponent
   ],
   imports: [
     BrowserModule,

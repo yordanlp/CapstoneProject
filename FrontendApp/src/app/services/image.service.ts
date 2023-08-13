@@ -21,9 +21,19 @@ export class ImageService {
     return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/upload`, formData);
   }
 
+  saveImage(imageFile: File, parentImageId: number){
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('parentImageId', parentImageId.toString());
+    return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/save`, formData);
+  }
   // Get all images for a user
   getImages(): Observable<any> {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/list`);
+  }
+
+  getSavedImages(): Observable<any>{
+    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/saved/list`);
   }
 
   // Get an image by id
@@ -37,6 +47,14 @@ export class ImageService {
     return this.http.delete(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`);
   }
 
+  getSavedImage(imageId: number): Observable<any> {
+    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/saved/image/${imageId}`, { responseType: 'blob' });
+  }
+
+  getSuperResolutionImage(imageId: number): Observable<any>{
+    return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/superresolution/image/${imageId}`, { responseType: 'blob' });
+  }
+  
   generateRandomImages( model: string, numberOfImages: number, userId: string, eventId: string ): Observable<any>{
     const body = {
       model,
@@ -62,4 +80,13 @@ export class ImageService {
     };
     return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/pca`, body);
   }
+
+  runSuperResolution( imageId: number, eventId: string ){
+    const body = {
+      imageId,
+      eventId
+    };
+    return this.http.post(`${AppConfig.settings.apiServer.host}/api/images/superresolution`, body);
+  }
+  
 }
