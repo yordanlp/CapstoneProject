@@ -156,3 +156,16 @@ class ImageService:
             logger.error("An error has ocurred while deleting the image")
             logger.error(str(e))
             return GenericResponse(code=500)
+        
+    def delete_saved_image(self, image_id) -> GenericResponse:
+        try:
+            image = SavedImage.query.get(image_id)
+            if not image:
+                return GenericResponse(errors=['Image does not exists'])
+            self.db.session.delete(image)
+            self.db.session.commit()
+            return GenericResponse(data=image_id)
+        except Exception as e:
+            logger.error("An error has ocurred while deleting the image")
+            logger.error(str(e))
+            return GenericResponse(code=500)

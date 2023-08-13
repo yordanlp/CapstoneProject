@@ -139,6 +139,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
     removeElement(this.images);
     removeElement(this.allImages);
+
+    console.log("FILTERING DELETED IMAGE");
   }
 
   filterBy( category: FilterCategories ){

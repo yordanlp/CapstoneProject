@@ -51,6 +51,18 @@ export class SavedImagesComponent {
 
     //this.socket.on('message', (args) => console.log(args));
   }
+  onImageDeleted(event: SavedImage) {
+    const removeElement = (container :  SavedImage[]) => {
+      const index = container.findIndex(image => image.id == event.id);
+      if (index !== -1)
+        container.splice(index, 1);
+    };
+
+    removeElement(this.images);
+    removeElement(this.allImages);
+
+    console.log("FILTERING DELETED IMAGE");
+  }
 
   ngOnDestroy(): void {
     this.imagesSubscription?.unsubscribe();
