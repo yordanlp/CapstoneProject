@@ -47,6 +47,12 @@ export class ImageService {
     return this.http.delete(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`);
   }
 
+  // Delete saved image give id
+  deleteSavedImage(imageId: number): Observable<any> {
+    console.log(`IMAGE ID FOR REMOVE ${imageId}`);
+    return this.http.delete(`${AppConfig.settings.apiServer.host}/api/images/saved/image/${imageId}`);
+  }
+
   getSavedImage(imageId: number): Observable<any> {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/saved/image/${imageId}`, { responseType: 'blob' });
   }
