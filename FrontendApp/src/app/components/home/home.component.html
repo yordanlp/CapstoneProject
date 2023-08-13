@@ -45,7 +45,7 @@
 <div class="grid grid-cols-2 md:grid-cols-4 gap-4" *ngIf="images != []">
 
   <div class="flex items-center justify-center" *ngFor="let image of images">
-    <app-image-card [imageData]="image"></app-image-card>
+    <app-image-card [imageData]="image" (imageDeleted)="onImageDeleted($event)"></app-image-card>
   </div>
 </div>
 

@@ -41,6 +41,12 @@ export class ImageService {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`, { responseType: 'blob' });
   }
 
+  // Detele an image given id
+  deleteImage(imageId: number): Observable<any> {
+    console.log(`IMAGE ID FOR REMOVE ${imageId}`);
+    return this.http.delete(`${AppConfig.settings.apiServer.host}/api/images/image/${imageId}`);
+  }
+
   getSavedImage(imageId: number): Observable<any> {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/saved/image/${imageId}`, { responseType: 'blob' });
   }
@@ -49,7 +55,6 @@ export class ImageService {
     return this.http.get(`${AppConfig.settings.apiServer.host}/api/images/superresolution/image/${imageId}`, { responseType: 'blob' });
   }
   
-
   generateRandomImages( model: string, numberOfImages: number, userId: string, eventId: string ): Observable<any>{
     const body = {
       model,
