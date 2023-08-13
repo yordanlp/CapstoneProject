@@ -26,19 +26,6 @@ class ImageService:
             logger.error("An error has ocurred while saving the image")
             logger.error(str(e))
             return GenericResponse(code=500)
-        
-    def delete_image(self, image_id) -> GenericResponse:
-        try:
-            image = Image.query.get(image_id)
-            if not image:
-                return GenericResponse(errors=['Image does not exists'])
-            self.db.session.delete(image)
-            self.db.session.commit()
-            return GenericResponse(data=image_id)
-        except Exception as e:
-            logger.error("An error has ocurred while deleting the image")
-            logger.error(str(e))
-            return GenericResponse(code=500)
 
     def get_images_by_user(self, user_id):
         try:                
@@ -93,5 +80,18 @@ class ImageService:
             return GenericResponse(data=new_image)
         except Exception as e:      
             logger.error(f"An error has ocurred while asociating the image {image_name} to user {user_id}")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
+    def delete_image(self, image_id) -> GenericResponse:
+        try:
+            image = Image.query.get(image_id)
+            if not image:
+                return GenericResponse(errors=['Image does not exists'])
+            self.db.session.delete(image)
+            self.db.session.commit()
+            return GenericResponse(data=image_id)
+        except Exception as e:
+            logger.error("An error has ocurred while deleting the image")
             logger.error(str(e))
             return GenericResponse(code=500)
