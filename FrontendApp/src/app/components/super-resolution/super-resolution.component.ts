@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription, forkJoin, map } from 'rxjs';
+import { Observable, Subscription, map } from 'rxjs';
 import { io } from 'socket.io-client';
-import { LatentEditsPopUpComponent } from 'src/app/components/latent-edits-pop-up/latent-edits-pop-up.component';
-import { Image } from 'src/app/models/image.model';
-import { LatentEdit } from 'src/app/models/latent-edit.model';
+import { SavedImage } from 'src/app/models/saved-image.model';
 import { AppConfig } from 'src/app/services/app-config.service';
 import { ImageService } from 'src/app/services/image.service';
 import { UserService } from 'src/app/services/user.service';
@@ -13,27 +11,23 @@ import { v4 as uuidv4 } from 'uuid';
 import { saveAs } from 'file-saver';
 
 @Component({
-  selector: 'app-image-transform',
-  templateUrl: './image-transform.component.html',
-  styleUrls: ['./image-transform.component.css']
+  selector: 'app-super-resolution',
+  templateUrl: './super-resolution.component.html',
+  styleUrls: ['./super-resolution.component.css']
 })
-export class ImageTransformComponent implements OnInit, OnDestroy {
-
-  imageData: Image = null!;
+export class SuperResolutionComponent implements OnInit, OnDestroy{
+  imageData: SavedImage = null!;
   imageBlob$: Observable<any> = null!
   imagesUrl: string[] = [];
   imageSubscription: Subscription | null = null;
+  superResolutionSubscription: Subscription | null = null;
   loading: boolean = false;
   blobUrl: string = ""
   id: number = 0;
   currentImageUrl: string = "";
-  menuOpen = false;
-  @ViewChild('latentEditsModal') latentEditsModal!: LatentEditsPopUpComponent;
   socket = io(AppConfig.settings.apiServer.host);
   sanitizer: any;
-  showLEModal: boolean = false;
-
-  showModalEvent = new EventEmitter<void>();
+  menuOpen: boolean = false;
 
   constructor(private imageService: ImageService
     , private route: ActivatedRoute
@@ -57,28 +51,14 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     );
   }
 
-  saveImage(){
-    console.log("Saving Image ...")
-    this.loading = true;
-    this.convertBlobUrlToFile(this.currentImageUrl).subscribe(file => {
-      this.imageService.saveImage(file, this.id).subscribe(
-        response => { console.log("Image Saved successfully", response); this.loading = false},
-        err => { console.error("Error saving the image", err); this.loading = false}
-       );
-    });
-  }
-
   updateImageUrl( event: string ){
     this.currentImageUrl = event;
     console.log(event);
   }
 
-  showLatentEditsModal() {
-    this.latentEditsModal.showModal();
-  }
-
   ngOnDestroy(): void {
     this.imageSubscription?.unsubscribe();
+    this.superResolutionSubscription?.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -86,61 +66,54 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     if (isNaN(idParam))
       this.router.navigate(['/']);
     this.id = idParam;
-    this.imageBlob$ = this.imageService.getImage(this.id);
+    this.imageBlob$ = this.imageService.getSavedImage(this.id);
     this.loading = true;
     this.imageSubscription = this.imageBlob$.subscribe(data => {
       this.blobUrl = URL.createObjectURL(data);
       this.imagesUrl = [this.blobUrl];
       this.currentImageUrl = this.blobUrl;
       this.loading = false;
+      this.loadSuperResolution();
     });
   }
 
-  runPca( event: {
-    interpolationSteps: number,
-    latentEdits: Array<LatentEdit>
-  } ){
-    this.showLEModal = false;
-    console.log(event);
+  loadSuperResolution(){
+    this.loading = true;
+    this.superResolutionSubscription = this.imageService.getSuperResolutionImage(this.id).subscribe(
+      data => {
+        const superResolutionUrl = URL.createObjectURL(data);
+        this.imagesUrl = [...this.imagesUrl, superResolutionUrl];
+        this.loading = false;
+      },
+      error => {
+        this.loading = false;
+        if (error.status === 404) {
+          console.error('Resource not found:', error);
+        } else {
+          console.error('An error occurred:', error);
+        }
+      });
+  }
+
+  runSuperResolution(){
     this.loading = true;
     let eventId = uuidv4();
     let userId = this.userService.getUser().id;
     const key = `${userId}:${eventId}`;
+    this.loading = true;
     this.socket.on(key, (data) => {
       this.socket.off(key);
       data = JSON.parse(data);
+      this.loading = false;
       if( !data.success ){
         console.error(data.message);
         return;
       }
-      console.log("data from socket", data);
-
-      let imageObservables = [];
-      for (let i = 0; i < event.interpolationSteps; i++) {
-        const observable = this.imageService.getGeneratedImage(this.id, i);
-        imageObservables.push(observable);
-      }
-    
-      let imagesUrls: string[] = [];
-      forkJoin(imageObservables)
-        .pipe(
-          map( (image: any) => {
-            return image;
-          })
-        )
-        .subscribe(data => {
-          for(let key in data){
-            const file = data[key];
-            const fileURL = URL.createObjectURL(file);
-            imagesUrls.push(fileURL);
-          }
-          console.log("imagesUrl", imagesUrls);
-          this.loading = false;
-          this.imagesUrl = [this.blobUrl,...imagesUrls];
-        });
-      });
+      this.loadSuperResolution();
+      console.log("data from socket", data);    
+    });
       
-    this.imageService.runPCA(this.id, event, eventId).subscribe(
+    this.imageService.runSuperResolution(this.id, eventId).subscribe(
       data => console.log,
       error => console.error
     );
@@ -150,5 +123,3 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     this.menuOpen = open;
   }
 }
-
-
