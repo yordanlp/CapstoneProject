@@ -79,6 +79,35 @@ class WorkerService:
             logger.error(str(e))
             return GenericResponse(code=500)
         
+    def run_superresolution(self, image_id, event_id) -> GenericResponse:
+        try:                
+            result = image_service.get_saved_image_by_id(image_id)
+            print("Running Superresolution")
+            if result.success != True:
+                return result
+            image = result.data
+            model = 'superresolution'
+ 
+            data = {
+                'eventId': event_id,
+                'userId': image.user_id,
+                'model': model,
+                'data': {
+                    "endpoint": '/run_superresolution',
+                    "model": model,
+                    "image_id": image.name
+                }
+            }
+            
+            image.status_superresolution = 'START'
+            self.db.session.commit()
+            redis_conn.publish('backend2worker_queue', json.dumps(data))
+            return GenericResponse(data=data, code=200)
+        except Exception as e:      
+            logger.error("An error has ocurred trying to generate the projection of the image")
+            logger.error(str(e))
+            return GenericResponse(code=500)
+        
     def generate_random_images(self, model, number_of_images, user_id, event_id):
         try:                
             print("Generating random images")

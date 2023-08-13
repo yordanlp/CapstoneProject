@@ -21,7 +21,6 @@ class RedisService:
     def __init__(self, db) -> None:
         self.db = db
         self.seen_messages = {}
-        self.lock = threading.Lock()
         with app.app_context():
             self.redis_conn = redis.Redis(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'])
 
@@ -37,10 +36,9 @@ class RedisService:
                         if message['type'] == 'message':
                             data = json.loads(message['data'])
                             #print(data)
-                            if data['success'] == True:
-                                self.process_message(data)
-                            else:
-                                logger.error(data['message'])
+                            if data['type'] != 'finish':
+                                continue
+                            self.process_message(data)
                     except Exception as e:
                         logger.error("An error has ocurred processing a message from redis")
                         logger.error(str(e))        
@@ -50,33 +48,24 @@ class RedisService:
                 return GenericResponse(code=500)
 
     def process_message(self, data):
-        with self.lock:
-            if data['type'] != 'finish':
-                return
-            assert 'triggerMessage' in data.keys()
-            event = data['triggerMessage']
-            user_id = event['userId']
-            event_id = event['eventId']
-            message_key = self.get_message_key(data)
-            value_redis = self.redis_conn.get(message_key)
-            if value_redis == None:
-                value_redis = 0
-            print("--------------MESSAGE KEY-------------------: " + message_key + " " + str(value_redis))
-            #if  redis_conn.incr(message_key) == 1:
-            #    print( f"event with used_id: {user_id} and event_id: {event_id} was already proccessed" )
-            #    return
-            print(event)
-            if event['data']['endpoint'] == '/run_projection':
-                self.process_finish_projection(data)
-            if event['data']['endpoint'] == '/run_pca':
-                self.process_finish_pca(data)
-            if event['data']['endpoint'] == '/random_images':
-                self.process_finish_random(data)
+        event = data['triggerMessage']
+        message_key = self.get_message_key(data)
+        if data['success'] == False:
+            socketio.emit(message_key, json.dumps(data))
+            return
+        
+        if event['data']['endpoint'] == '/run_projection':
+            self.process_finish_projection(data)
+        if event['data']['endpoint'] == '/run_pca':
+            self.process_finish_pca(data)
+        if event['data']['endpoint'] == '/random_images':
+            self.process_finish_random(data)
+        if event['data']['endpoint'] == '/run_superresolution':
+            self.process_finish_superresolution(data)
     
     def process_finish_pca(self, data):
         print("FINISH PCA")
         message_key = self.get_message_key(data)
-        print(message_key)
         socketio.emit(message_key, json.dumps(data))
 
     def process_finish_projection(self, data):
@@ -87,8 +76,29 @@ class RedisService:
             print(result.errors)
             socketio.emit(message_key, json.dumps(data))
             return
+
         image = result.data
-        image.status_process = 'FINISH'
+        if data['success'] == False:
+            image.status_process = 'ERROR'
+        else:
+            image.status_process = 'FINISH'
+
+        self.db.session.commit()
+        socketio.emit(message_key, json.dumps(data))
+
+    def process_finish_superresolution(self, data):
+        message_key = self.get_message_key(data)
+        image_name = data['triggerMessage']['data']['image_id']
+        result = image_service.get_saved_image_by_name(image_name)
+        if result.success != True:
+            print(result.errors)
+            socketio.emit(message_key, json.dumps(data))
+            return
+        image = result.data
+        if data['success'] == False:
+            image.status_superresolution = 'ERROR'
+        else:
+            image.status_superresolution = 'FINISH'
         self.db.session.commit()
         socketio.emit(message_key, json.dumps(data))
 
