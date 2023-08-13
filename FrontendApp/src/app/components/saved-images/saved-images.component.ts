@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { io } from 'socket.io-client';
 import { FilterCategories } from 'src/app/models/filter-categories.model';
@@ -13,7 +13,7 @@ import { UserService } from 'src/app/services/user.service';
   templateUrl: './saved-images.component.html',
   styleUrls: ['./saved-images.component.css']
 })
-export class SavedImagesComponent {
+export class SavedImagesComponent implements OnInit, OnDestroy {
   imagesObservable$: Observable<any> | null = null;
   imagesSubscription: Subscription | null = null;
   //socket = io(AppConfig.settings.apiServer.host);
