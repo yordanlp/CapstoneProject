@@ -60,7 +60,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   randomImagesNumber: number = 1;
   socket = io(AppConfig.settings.apiServer.host);
 
-  filterCategories: FilterCategories[] = []
+  filterCategories: FilterCategories[] = [];
 
   generateRandomImages( model: string, amount: number){
     console.log(model, amount);
@@ -144,17 +144,27 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   filterBy( category: FilterCategories ){
-    if( category.value == '*' ){
+    const allCat = this.filterCategories.find(category => category.value === '*')!;
+      
+    if( category.value === '*' ){
       this.filterCategories.forEach(c => c.selected = false);
       category.selected = true;
     }
-    else
+    else {
       category.selected = !category.selected;
-  
+      if (allCat.selected)
+        allCat.selected = false;
+      else {
+        const selectedCategories = this.filterCategories.filter(category => category.selected === true);
+        if (selectedCategories.length === 0)
+          allCat.selected = true;
+      }
+    }
+
     this.images = this.allImages.filter(i => {
       let model = i.model;
-      let filter = this.filterCategories.filter(f => f.value == model)[0];
-      return filter.selected || category.value == '*';
+      let filter = this.filterCategories.find(f => f.value == model);
+      return filter!.selected || allCat.selected;
     });
 
   }
