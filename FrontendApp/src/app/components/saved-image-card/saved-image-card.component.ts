@@ -16,11 +16,16 @@ export class SavedImageCardComponent implements OnInit, OnDestroy {
   imageBlob$: Observable<any> = null!
   imageSubscription: Subscription = null!;
   blobUrl: string = ""
+  isImageLoaded = false;
 
   constructor(private imageService: ImageService) {
 
   }
 
+  onImageLoad(){
+    this.isImageLoaded = true;
+  }
+  
   deleteImage(): void {
     console.log('REMOVING IMAGE');
     console.log(this.imageData);

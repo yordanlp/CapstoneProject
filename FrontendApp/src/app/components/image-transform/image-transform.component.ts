@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, forkJoin, map } from 'rxjs';
-import { io } from 'socket.io-client';
 import { LatentEditsPopUpComponent } from 'src/app/components/latent-edits-pop-up/latent-edits-pop-up.component';
 import { Image } from 'src/app/models/image.model';
 import { LatentEdit } from 'src/app/models/latent-edit.model';
@@ -11,6 +10,8 @@ import { ImageService } from 'src/app/services/image.service';
 import { UserService } from 'src/app/services/user.service';
 import { v4 as uuidv4 } from 'uuid';
 import { saveAs } from 'file-saver';
+import { WebSocketService } from 'src/app/services/web-socket.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-image-transform',
@@ -29,7 +30,6 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
   currentImageUrl: string = "";
   menuOpen = false;
   @ViewChild('latentEditsModal') latentEditsModal!: LatentEditsPopUpComponent;
-  socket = io(AppConfig.settings.apiServer.host);
   sanitizer: any;
   showLEModal: boolean = false;
 
@@ -39,7 +39,9 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     , private route: ActivatedRoute
     , private router: Router
     , private userService: UserService
-    , private http: HttpClient )
+    , private http: HttpClient
+    , private ws: WebSocketService
+    , private toastr: ToastrService )
     {
 
   }
@@ -62,8 +64,14 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.convertBlobUrlToFile(this.currentImageUrl).subscribe(file => {
       this.imageService.saveImage(file, this.id).subscribe(
-        response => { console.log("Image Saved successfully", response); this.loading = false},
-        err => { console.error("Error saving the image", err); this.loading = false}
+        response => { 
+          console.log("Image Saved successfully", response); this.loading = false
+          this.toastr.success("Image saved successfully");
+        },
+        err => { 
+          console.error("Error saving the image", err); this.loading = false
+          this.toastr.error("An error has ocurred saving the image");
+        }
        );
     });
   }
@@ -106,14 +114,14 @@ export class ImageTransformComponent implements OnInit, OnDestroy {
     let eventId = uuidv4();
     let userId = this.userService.getUser().id;
     const key = `${userId}:${eventId}`;
-    this.socket.on(key, (data) => {
-      this.socket.off(key);
-      data = JSON.parse(data);
-      if( !data.success ){
-        console.error(data.message);
+    this.ws.on(key, (data: string) => {
+      this.ws.off(key);
+      let dataParsed = JSON.parse(data);
+      if( !dataParsed.success ){
+        console.error(dataParsed.message);
         return;
       }
-      console.log("data from socket", data);
+      console.log("data from socket", dataParsed);
 
       let imageObservables = [];
       for (let i = 0; i < event.interpolationSteps; i++) {

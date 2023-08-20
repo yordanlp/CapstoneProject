@@ -9,6 +9,7 @@ import { ImageService } from 'src/app/services/image.service';
 import { UserService } from 'src/app/services/user.service';
 import { v4 as uuidv4 } from 'uuid';
 import { saveAs } from 'file-saver';
+import { WebSocketService } from 'src/app/services/web-socket.service';
 
 @Component({
   selector: 'app-super-resolution',
@@ -33,7 +34,8 @@ export class SuperResolutionComponent implements OnInit, OnDestroy{
     , private route: ActivatedRoute
     , private router: Router
     , private userService: UserService
-    , private http: HttpClient )
+    , private http: HttpClient
+    , private ws: WebSocketService )
     {
 
   }
@@ -101,16 +103,16 @@ export class SuperResolutionComponent implements OnInit, OnDestroy{
     let userId = this.userService.getUser().id;
     const key = `${userId}:${eventId}`;
     this.loading = true;
-    this.socket.on(key, (data) => {
+    this.ws.on(key, (data: string) => {
       this.socket.off(key);
-      data = JSON.parse(data);
+      let dataParsed = JSON.parse(data);
       this.loading = false;
-      if( !data.success ){
-        console.error(data.message);
+      if( !dataParsed.success ){
+        console.error(dataParsed.message);
         return;
       }
       this.loadSuperResolution();
-      console.log("data from socket", data);    
+      console.log("data from socket", dataParsed);    
     });
       
     this.imageService.runSuperResolution(this.id, eventId).subscribe(

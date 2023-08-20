@@ -3,5 +3,6 @@ export interface Image {
   name: string,
   user_id: number,
   mime_type: string,
-  model: string
+  model: string,
+  status_process?: string | null
 }

@@ -10,11 +10,21 @@ import { ImageService } from 'src/app/services/image.service';
 })
 export class ImageCardComponent implements OnInit, OnDestroy {
 
-  @Input() imageData: Image = null!;
+  private _imageData: Image = null!;
+  @Input() set imageData( value: Image ){
+    this._imageData = value;
+    console.log("ImageData", value);
+  }
+
+  get imageData(){
+    return this._imageData;
+  }
+  
   @Output() imageDeleted: EventEmitter<Image> = new EventEmitter<Image> ();
   imageBlob$: Observable<any> = null!
   imageSubscription: Subscription = null!;
   blobUrl: string = "";
+  isImageLoaded = false;
 
   constructor(private imageService: ImageService) {
 
@@ -29,6 +39,11 @@ export class ImageCardComponent implements OnInit, OnDestroy {
     }, (error) => {
       console.log(error);
     });
+  }
+
+  onImageLoad(){
+    this.isImageLoaded = true;
+    console.log("Image Loaded");
   }
 
   ngOnDestroy(): void {

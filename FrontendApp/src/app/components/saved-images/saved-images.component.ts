@@ -1,6 +1,5 @@
 import { AfterViewChecked, AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
-import { io } from 'socket.io-client';
 import { FilterCategories } from 'src/app/models/filter-categories.model';
 import { Image } from 'src/app/models/image.model';
 import { SavedImage } from 'src/app/models/saved-image.model';
@@ -16,14 +15,12 @@ import { UserService } from 'src/app/services/user.service';
 export class SavedImagesComponent implements OnInit, OnDestroy {
   imagesObservable$: Observable<any> | null = null;
   imagesSubscription: Subscription | null = null;
-  //socket = io(AppConfig.settings.apiServer.host);
   selectedImage: File | null = null;
   modelDialog: HTMLDialogElement | null = null;
   randomImageDialog: HTMLDialogElement | null = null;
   images: SavedImage[] = [];
   allImages: SavedImage[] = [];
   randomImagesNumber: number = 1;
-  socket = io(AppConfig.settings.apiServer.host);
 
   filterCategories: FilterCategories[] = []
 
@@ -48,8 +45,6 @@ export class SavedImagesComponent implements OnInit, OnDestroy {
         selected: true
       }
     ];
-
-    //this.socket.on('message', (args) => console.log(args));
   }
   onImageDeleted(event: SavedImage) {
     const removeElement = (container :  SavedImage[]) => {
@@ -66,7 +61,6 @@ export class SavedImagesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.imagesSubscription?.unsubscribe();
-    this.socket.close();
   }
   ngOnInit(): void {
     this.getAllImages();

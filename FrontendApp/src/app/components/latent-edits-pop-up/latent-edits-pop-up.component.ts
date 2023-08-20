@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { LatentEdit } from '../../models/latent-edit.model';
 
 @Component({
@@ -8,7 +8,7 @@ import { LatentEdit } from '../../models/latent-edit.model';
 })
 export class LatentEditsPopUpComponent implements OnInit, AfterViewInit{
 
-  modalDialog: HTMLDialogElement | null = null;
+  @ViewChild('modalDialog', { static: false }) modalDialog!: ElementRef<HTMLDialogElement>;
   latentEdit: LatentEdit;
   interpolationSteps: number = 1;
   latentEdits: Array<LatentEdit> = Array();
@@ -29,7 +29,6 @@ export class LatentEditsPopUpComponent implements OnInit, AfterViewInit{
     }
   }
   ngAfterViewInit(): void {
-    this.modalDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
   }
   showModal(){
     this.latentEdit = {
@@ -39,9 +38,7 @@ export class LatentEditsPopUpComponent implements OnInit, AfterViewInit{
       lower_coeff_limit: 0,
       upper_coeff_limit: 0
     }
-    if( this.modalDialog == null )
-      this.modalDialog = document.querySelector("#modelPopup") as HTMLDialogElement;
-    this.modalDialog?.showModal();
+    this.modalDialog.nativeElement.showModal();
   }
 
   submitLatentEdits(){
@@ -79,7 +76,7 @@ export class LatentEditsPopUpComponent implements OnInit, AfterViewInit{
   }
 
   closeModal(){
-    this.modalDialog?.close();
+    this.modalDialog.nativeElement.close();
     this.close.emit();
   }
 
