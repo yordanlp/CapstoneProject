@@ -1,4 +1,6 @@
 import mimetypes
+
+from sqlalchemy import desc
 from ..models import User, GenericResponse, Image, SavedImage
 from ..utils import *
 from app import logger, app
@@ -45,7 +47,7 @@ class ImageService:
         
     def get_images_by_user(self, user_id):
         try:                
-            images = Image.query.filter_by(user_id=user_id).all()
+            images = Image.query.filter_by(user_id=user_id).order_by(desc(Image.id)).all()
             return GenericResponse(data=images)
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the images for user {user_id}")
@@ -54,7 +56,7 @@ class ImageService:
         
     def get_saved_images_by_user(self, user_id):
         try:                
-            images = SavedImage.query.filter_by(user_id=user_id).all()
+            images = SavedImage.query.filter_by(user_id=user_id).order_by(desc(SavedImage.id)).all()
             return GenericResponse(data=images)
         except Exception as e:      
             logger.error(f"An error has ocurred while retrieving the saved images for user {user_id}")
