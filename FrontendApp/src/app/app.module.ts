@@ -24,6 +24,7 @@ import { LoadingComponent } from './components/loading/loading.component';
 import { SavedImagesComponent } from './components/saved-images/saved-images.component';
 import { SavedImageCardComponent } from './components/saved-image-card/saved-image-card.component';
 import { SuperResolutionComponent } from './components/super-resolution/super-resolution.component';
+import { ToastrModule } from 'ngx-toastr';
 
 export function initializeApp(appConfig: AppConfig) {
   return () => appConfig.load();
@@ -63,7 +64,8 @@ const routes: Routes = [
     ReactiveFormsModule,
     HttpClientModule,
     ClickOutsideModule,
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes),
+    ToastrModule.forRoot()
   ],
   exports: [RouterModule],
   providers: [
