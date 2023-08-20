@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Blueprint, jsonify, request
 from app import logger, app, socketio, db
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
@@ -22,8 +23,17 @@ def upload_image():
     image = request.files['image']
     model = request.form['model']
     result = image_service.save_image(image, model, user_data['id'])
-    if result.success:
-        worker_service.generate_projection(result.data.id)
+    return make_response(jsonify(object_to_dict(result)), result.code)
+
+@images_controller.route('/generateProjection', methods=['POST'])
+@jwt_required()
+def generate_projection():
+    # getting user id from jwt instead of request
+    user_data = get_jwt_identity()
+    image_id = request.json.get('imageId')
+    event_id = request.json.get('eventId')
+    user_id = request.json.get('userId')
+    result = worker_service.generate_projection(image_id, event_id, user_id)
     return make_response(jsonify(object_to_dict(result)), result.code)
 
 @images_controller.route('/save', methods=['POST'])
@@ -126,9 +136,16 @@ def get_image(image_id):
     if result.data is None or result.data.user_id != user_id:
         return make_response(object_to_dict(GenericResponse(errors=['User is not authorized to see this resource'], code=401)), 401)
 
-    # Otherwise, return the image file
+    # Otherwise, return the image file  
     image_path = os.path.join(app.config['IMAGES_FOLDER'], result.data.name)
-    return send_file(image_path, mimetype=result.data.mime_type)
+    response = send_file(image_path, mimetype=result.data.mime_type)
+
+    # Add caching headers
+    # For example, caching for 30 days
+    cache_duration = timedelta(days=30).total_seconds()
+    response.headers['Cache-Control'] = f'public, max-age={cache_duration}'
+    
+    return response
 
 @images_controller.route('/image/<int:image_id>', methods=['DELETE'])
 @jwt_required()
@@ -190,7 +207,12 @@ def get_saved_image(image_id):
 
     # Otherwise, return the image file
     image_path = os.path.join(app.config['IMAGES_FOLDER'], result.data.name)
-    return send_file(image_path, mimetype='image/jpeg')
+    response = send_file(image_path, mimetype='image/jpeg')
+
+    cache_duration = timedelta(days=30).total_seconds()
+    response.headers['Cache-Control'] = f'public, max-age={cache_duration}'
+
+    return response
 
 @images_controller.route('/superresolution/image/<int:image_id>', methods=['GET'])
 @jwt_required()
@@ -211,4 +233,9 @@ def get_superresolution_image(image_id):
 
     # Otherwise, return the image file
     image_path = os.path.join(app.config['UPSCALED_IMAGES_FOLDER'], result.data.name)
-    return send_file(image_path, mimetype='image/jpeg')
+
+    response = send_file(image_path, mimetype='image/jpeg')
+    cache_duration = timedelta(days=30).total_seconds()
+    response.headers['Cache-Control'] = f'public, max-age={cache_duration}'
+
+    return response
