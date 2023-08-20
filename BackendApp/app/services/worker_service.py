@@ -16,7 +16,7 @@ class WorkerService:
     def __init__(self, db) -> None:
         self.db = db
 
-    def generate_projection(self, image_id) -> GenericResponse:
+    def generate_projection(self, image_id, event_id, user_id) -> GenericResponse:
         try:                
             result = image_service.get_image_by_id(image_id)
             if result.success != True:
@@ -29,8 +29,8 @@ class WorkerService:
                 model = 'stylegan2'
 
             data = {
-                'eventId': uuid.uuid4().hex,
-                'userId': image.user_id,
+                'eventId': event_id,
+                'userId': user_id,
                 'model': model,
                 'data': {
                     'endpoint': '/run_projection',
