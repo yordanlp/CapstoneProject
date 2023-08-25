@@ -210,8 +210,6 @@ def run(model, selected_path, task, custom_steps, resize_enabled=False, classifi
     return logs
 
 def run_superresolution(file_path, output_path):
-    Image.open(file_path).save(output_path)
-    return
     
     mode_value = "superresolution"
     model = get_model(mode_value)
