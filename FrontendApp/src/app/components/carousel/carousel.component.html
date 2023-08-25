@@ -3,7 +3,7 @@
     
     <div class="relative overflow-hidden rounded-lg h-full">
         <div *ngFor="let imageUrl of imagesUrls; let i = index" [id]="'carousel-item-' + i" [class.hidden]="i > 0" class="hidden duration-700 ease-in-out">
-            <img [src]="imageUrl" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 object-scale-down" alt="...">
+            <img [src]="imageUrl" style="max-height: 100%; width: auto; display: block;" class="absolute block w-full -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2 object-scale-down" alt="...">
         </div>
     </div>
 
