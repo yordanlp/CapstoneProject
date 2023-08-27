@@ -89,6 +89,10 @@ To optimize the development process, we've separated the models and their enviro
 
 This section provides step-by-step instructions on how to set up the application on your local machine.
 
+### Requirements:
+- Linux based OS
+- Nvidia GPU with at least 8GB of VRAM.
+
  ### Models & Redis
  #### Prerequisites  
  - [Docker](https://www.docker.com/)
