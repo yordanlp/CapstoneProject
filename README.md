@@ -29,7 +29,7 @@ This web application offers a range of features to interact with GANs models:
 
 ### Image Transformations
 - **Projection**: Map your image into the latent space of the model.
-- **PCA**: Perform Principal Component Analysis on your image.
+- **PCA**: Perform Principal Component Analysis on the latent space to modify your image.
 - **Superresolution**: Enhance the resolution of your images.
 
 ### User Interface
