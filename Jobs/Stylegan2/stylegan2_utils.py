@@ -7,6 +7,8 @@ from PIL import Image
 
 import torch
 
+from config import DEVICE
+
 # TODO: to remove 
 # CWD = '/home/erne/Desktop/Capstone/CapstoneProject/Jobs/Stylegan2/'
 # os.chdir(CWD)
@@ -19,14 +21,14 @@ from stylegan2 import legacy
 
 def get_network_generator(
     network_pkl : str,
-    device : torch.device = torch.device('cuda')
+    device : torch.device = DEVICE
 ):
     print('Loading networks from "%s"...' % network_pkl)
     with dnnlib.util.open_url(network_pkl) as fp:
         G = legacy.load_network_pkl(fp)['G_ema'].requires_grad_(False).to(device) # type: ignore
     return G
 
-def get_image_from_w(G, ws, device=torch.device('cuda')):
+def get_image_from_w(G, ws, device=DEVICE):
     return G.synthesis(ws, noise_mode='const').detach()
 
 def prepare_img(img):

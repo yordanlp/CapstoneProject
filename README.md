@@ -90,8 +90,7 @@ To optimize the development process, we've separated the models and their enviro
 This section provides step-by-step instructions on how to set up the application on your local machine.
 
 ### Requirements:
-- Linux based OS
-- Nvidia GPU with at least 8GB of VRAM.
+- Linux based OS with an Nvidia GPU with at least 8GB of VRAM (Docker), or macOS on Apple Silicon (native, see below).
 
  ### Models & Redis
  #### Prerequisites  
@@ -111,6 +110,30 @@ build_images.sh
  ```
 docker-compose up
  ```
+
+ ### Models & Redis on macOS (Apple Silicon / MPS) or without Docker
+ Docker on macOS can't access the GPU, so on a Mac the models run natively and use Metal (MPS).
+
+ #### Prerequisites
+ - Python 3.11 (`brew install python@3.11` or pyenv)
+ - `redis-server` (`brew install redis`) or Docker (used only to run Redis)
+
+ #### Step 1: Set up the virtual environments and clone the model repositories
+ ```
+cd ./Jobs
+./setup_local.sh        # or PYTHON=/path/to/python3.11 ./setup_local.sh
+ ```
+
+ #### Step 2: Run Redis, the models and the worker
+ ```
+./run_local.sh
+ ```
+ Logs are written to `Jobs/.logs`. Set `IMAGES_FOLDER`, `PCA_FOLDER` and `UPSCALED_IMAGES_FOLDER` in the backend `.env` to `Jobs/Shared/...` as usual.
+
+ #### Device selection
+ Every model service reads the `DEVICE` environment variable: `auto` (default: cuda, then mps, then cpu), `cuda`, `mps` or `cpu`, e.g. `DEVICE=cpu ./run_local.sh`.
+
+ > **ALIS is disabled.** Its checkpoint (`https://kaust-cair.s3.amazonaws.com/alis/lhq1024-snapshot.pkl`) is no longer publicly available, so the ALIS service is commented out in `docker-compose.yml`, `build_images.sh`, `setup_local.sh`, `run_local.sh` and in the frontend model list. The code is kept: to re-enable it, uncomment those lines and set `ALIS_CHECKPOINT=/path/to/lhq1024-snapshot.pkl` if the original URL is still down.
 
 ---
 

@@ -1,0 +1,12 @@
+torch>=2.2
+torchvision
+numpy<2
+pillow
+flask
+omegaconf
+einops
+pytorch-lightning==1.9.5
+kornia
+ftfy
+regex
+tqdm

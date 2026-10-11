@@ -1,3 +1,4 @@
+from config import DEVICE, ALIS_CHECKPOINT
 from alis_utils import get_network_generator, get_image_from_w_alis, save_img, prepare_img
 
 import os
@@ -34,8 +35,8 @@ class AlisWrapper:
     @classmethod
     def get_random_images(
         cls,
-        network_pkl = 'https://kaust-cair.s3.amazonaws.com/alis/lhq1024-snapshot.pkl',
-        device = torch.device('cuda'),
+        network_pkl = ALIS_CHECKPOINT,
+        device = DEVICE,
         n_samples = 1,
     ):
         '''
@@ -52,7 +53,7 @@ class AlisWrapper:
         c = None
         modes_idx = torch.from_numpy(np.array([0])).to(device)
         
-        G = get_network_generator(network_pkl)
+        G = get_network_generator(network_pkl, device)
         G.eval()
         
         w_list = []
@@ -64,7 +65,7 @@ class AlisWrapper:
             img = get_image_from_w_alis(G, w)
             img = prepare_img(img)
 
-            w_list.append(w.detach())
+            w_list.append(w.detach().cpu())
             img_list.append(img)
         
         return w_list, img_list
@@ -77,7 +78,7 @@ class AlisWrapper:
     '''
     
     @classmethod
-    def get_image_from_w(cls, G, ws, device=torch.device('cuda')):
+    def get_image_from_w(cls, G, ws, device=DEVICE):
         '''
             Method to get image from ws context in projection process
             Args:
@@ -113,7 +114,7 @@ class AlisWrapper:
 		noise_ramp_length          = 0.75,
 		regularize_noise_weight    = 1e5,
 		verbose                    = False,
-		device: torch.device	   = torch.device('cuda')
+		device: torch.device	   = DEVICE
     ):
         '''
             Method to project an image to latent space.
@@ -141,7 +142,7 @@ class AlisWrapper:
         # Compute w stats.
         logprint(f'Computing W midpoint and stddev using {w_avg_samples} samples...')
         z_samples = np.random.RandomState(123).randn(w_avg_samples, G.z_dim)
-        w_samples = G.mapping(torch.from_numpy(z_samples).to(device), None, modes_idx=modes_idx)  # [N, L, C]
+        w_samples = G.mapping(torch.from_numpy(z_samples.astype(np.float32)).to(device), None, modes_idx=modes_idx)  # [N, L, C]
         
         w_samples = w_samples[:, :1, :].cpu().numpy().astype(np.float32)       # [N, 1, C]
 
@@ -244,7 +245,7 @@ class AlisWrapper:
 		save_video: bool = True, 
 		seed: int = 303, 
 		num_steps: int = 2000,
-        device : torch.device = torch.device('cuda'),
+        device : torch.device = DEVICE,
 		verbose: bool = False,
     ):
         '''
@@ -263,7 +264,6 @@ class AlisWrapper:
         '''
         np.random.seed(seed)
         torch.manual_seed(seed)
-        device = torch.device('cuda')
         modes_idx = torch.tensor([0], device=device)
 
         # Load networks.
@@ -316,7 +316,7 @@ class AlisWrapper:
 
         # Save W to pickle file
         with open(os.path.join(outdir, out_name + '.pkl'), 'wb') as f:
-            pkl.dump(projected_w[:2], f)
+            pkl.dump(projected_w[:2].cpu(), f)
 
     
     @classmethod
@@ -356,7 +356,7 @@ class AlisWrapper:
 
         print('Running projection on ' + file_path)
         AlisWrapper.run_project(
-            network_pkl = 'https://kaust-cair.s3.amazonaws.com/alis/lhq1024-snapshot.pkl',
+            network_pkl = ALIS_CHECKPOINT,
             target_fname = file_path,
             outdir = out_folder,
             save_video = save_video,
@@ -378,7 +378,7 @@ class AlisWrapper:
         interpolation_steps,    #amount of interpolation samples
         outdir : str, 
         w : torch.tensor        = None, # if w is None its randomly sampled a point on Z space to perform movement 
-        device : torch.device   = torch.device('cuda'),
+        device : torch.device   = DEVICE,
         n_samples : int         = 10000, #number of samples to compute pca
         fit_pca : bool          = True, #whether to compute pca or if it's already calculated
         modify_list : list      = [], #each item is a tuple of the form (principal_component_number, (start_layer, end_layer), (lower_coeff_limit, upper_coeff_limit))
@@ -398,7 +398,7 @@ class AlisWrapper:
         c = None
         modes_idx = torch.from_numpy(np.array([0])).to(device)
 
-        G = get_network_generator()
+        G = get_network_generator(device=device)
         G.eval()
 
         pca_path = os.path.join(outdir, '..', 'pca.pkl')
@@ -417,14 +417,14 @@ class AlisWrapper:
             z = torch.randn([2, G.z_dim], device=device)
             w = G.mapping(z, c=None, skip_w_avg_update=True, modes_idx=modes_idx)#torch.nn.functional.one_hot(torch.tensor([cur_class]), n_classes).to(device))
 
-        ws = w.unsqueeze(0).repeat([interpolation_steps, 1, 1, 1])
+        ws = w.to(device).unsqueeze(0).repeat([interpolation_steps, 1, 1, 1])
 
         for (comp, (l_layer, r_layer), (l_coeff, r_coeff)) in modify_list:
             v = np.zeros((1, G.w_dim))
             v[0, comp] = 1
             u = pca.inverse_transform(v) - pca.mean_
             n_layers = r_layer - l_layer + 1
-            u = torch.tensor(u, device=device)#.unsqueeze(0).repeat([2, n_layers, 1])
+            u = torch.tensor(u, dtype=torch.float32, device=device)#.unsqueeze(0).repeat([2, n_layers, 1])
 
             coeff = torch.linspace(l_coeff, r_coeff, interpolation_steps, device=device).reshape(interpolation_steps, 1, 1, 1).repeat([1, 2, n_layers, G.w_dim])
             mov = coeff * u
