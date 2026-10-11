@@ -1,0 +1,11 @@
+torch>=2.2
+torchvision
+numpy<2
+scipy
+scikit-learn
+pillow
+imageio
+click
+omegaconf
+requests
+flask

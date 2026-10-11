@@ -30,10 +30,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       description: "Faces",
       name: "faces"
     },
-    {
-      description: 'Landscapes',
-      name: 'alis'
-    },
+    // ALIS is disabled: its checkpoint is no longer publicly available
+    // {
+    //   description: 'Landscapes',
+    //   name: 'alis'
+    // },
     {
       description: "Cars",
       name: 'cars'

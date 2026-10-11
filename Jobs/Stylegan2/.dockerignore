@@ -1,0 +1,7 @@
+.venv/
+alis/
+stylegan2/
+latent-diffusion/
+src/
+__pycache__/
+logs/

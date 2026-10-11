@@ -5,33 +5,33 @@ import os
 import PIL
 from PIL import Image
 
+from config import DEVICE, ALIS_CHECKPOINT
+
 from alis import dnnlib
 from alis.scripts import legacy
 from alis.training.networks import SynthesisLayer
 
 def get_network_generator(
-    network_pkl = 'https://kaust-cair.s3.amazonaws.com/alis/lhq1024-snapshot.pkl',
-    device      = torch.device('cuda')
+    network_pkl = ALIS_CHECKPOINT,
+    device      = DEVICE
 ):
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device('cuda')
     with dnnlib.util.open_url(network_pkl) as fp:
         data = legacy.load_network_pkl(fp) 
         G = data['G_ema'].requires_grad_(False).to(device) # type: ignore
     return G
 
 def get_network_discriminator(
-    network_pkl = 'https://kaust-cair.s3.amazonaws.com/alis/lhq1024-snapshot.pkl',
-    device      = torch.device('cuda')
+    network_pkl = ALIS_CHECKPOINT,
+    device      = DEVICE
 ):
     print('Loading networks from "%s"...' % network_pkl)
-    device = torch.device('cuda')
     with dnnlib.util.open_url(network_pkl) as fp:
         data = legacy.load_network_pkl(fp) 
         D = data['D'].requires_grad_(False).to(device) # type: ignore
     return D
 
-def get_image_from_w_alis(G, ws, device=torch.device('cuda')):
+def get_image_from_w_alis(G, ws, device=DEVICE):
     curr_idx = 1
     curr_ws = ws[curr_idx].unsqueeze(0)
     left_ws = ws[curr_idx - 1].unsqueeze(0)

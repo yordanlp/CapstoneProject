@@ -1,0 +1,14 @@
+# Model repos cloned by setup_local.sh / the Dockerfiles
+Alis/alis/
+Stylegan2/stylegan2/
+Superresolution/latent-diffusion/
+Superresolution/src/
+
+# Local (non-Docker) virtual environments
+.venv/
+*/.venv/
+.logs/
+
+__pycache__/
+# Checkpoints downloaded by the superresolution service
+Superresolution/logs/

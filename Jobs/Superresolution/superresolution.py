@@ -12,6 +12,20 @@ import sys
 import numpy as np
 from PIL import Image
 
+from config import DEVICE
+
+
+# latent-diffusion's DDIMSampler moves its buffers to "cuda" unconditionally,
+# so register them on the configured device instead (float64 isn't supported on mps)
+def _register_buffer(self, name, attr):
+    if isinstance(attr, torch.Tensor):
+        if attr.dtype == torch.float64:
+            attr = attr.float()
+        attr = attr.to(DEVICE)
+    setattr(self, name, attr)
+
+DDIMSampler.register_buffer = _register_buffer
+
 def download_models(mode):
 
     if mode == "superresolution":
@@ -35,12 +49,12 @@ def download_models(mode):
 
 def load_model_from_config(config, ckpt):
     print(f"Loading model from {ckpt}")
-    pl_sd = torch.load(ckpt, map_location="cpu")
+    pl_sd = torch.load(ckpt, map_location="cpu", weights_only=False)
     global_step = pl_sd["global_step"]
     sd = pl_sd["state_dict"]
     model = instantiate_from_config(config.model)
     m, u = model.load_state_dict(sd, strict=False)
-    model.cuda()
+    model.to(DEVICE)
     model.eval()
     return {"model": model}, global_step
 
@@ -63,7 +77,7 @@ def get_cond(mode, selected_path):
         c = rearrange(c, '1 c h w -> 1 h w c')
         c = 2. * c - 1.
 
-        c = c.to(torch.device("cuda"))
+        c = c.to(DEVICE)
         example["LR_image"] = c
         example["image"] = c_up
 

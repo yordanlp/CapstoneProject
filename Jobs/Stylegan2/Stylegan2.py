@@ -14,6 +14,7 @@ from sklearn.decomposition import PCA
 from stylegan2 import dnnlib
 from stylegan2 import legacy
 
+from config import DEVICE
 from stylegan2_utils import get_image_from_w, get_network_generator, prepare_img, save_img
 
 class Stylegan2Wrapper:
@@ -21,7 +22,7 @@ class Stylegan2Wrapper:
     def get_random_images(
         cls,
         network_pkl = 'https://nvlabs-fi-cdn.nvidia.com/stylegan2/networks/stylegan2-church-config-f.pkl',
-        device = torch.device('cuda'),
+        device = DEVICE,
         n_samples = 1,
     ):
         '''
@@ -36,7 +37,7 @@ class Stylegan2Wrapper:
                 img_list (list): List of image matrices 
         '''
 
-        G = get_network_generator(network_pkl)        
+        G = get_network_generator(network_pkl, device)
 
         zs = torch.randn((n_samples, G.z_dim)).to(device)
         ws = G.mapping(zs, None) 
@@ -47,7 +48,7 @@ class Stylegan2Wrapper:
             img = get_image_from_w(G, ws[i:i+1])
             img = prepare_img(img)
 
-            w_list.append(ws[i].detach()[:1])
+            w_list.append(ws[i].detach()[:1].cpu())
             img_list.append(img)            
         
         return w_list, img_list
@@ -67,7 +68,7 @@ class Stylegan2Wrapper:
         noise_ramp_length          = 0.75,
         regularize_noise_weight    = 1e5,
         verbose                    = False,
-        device: torch.device       = 'cuda'
+        device: torch.device       = DEVICE
     ):
         assert target.shape == (G.img_channels, G.img_resolution, G.img_resolution)
 
@@ -80,7 +81,7 @@ class Stylegan2Wrapper:
         # Compute w stats.
         logprint(f'Computing W midpoint and stddev using {w_avg_samples} samples...')
         z_samples = np.random.RandomState(123).randn(w_avg_samples, G.z_dim)
-        w_samples = G.mapping(torch.from_numpy(z_samples).to(device), None)  # [N, L, C]
+        w_samples = G.mapping(torch.from_numpy(z_samples.astype(np.float32)).to(device), None)  # [N, L, C]
         w_samples = w_samples[:, :1, :].cpu().numpy().astype(np.float32)       # [N, 1, C]
         w_avg = np.mean(w_samples, axis=0, keepdims=True)      # [1, 1, C]
         w_std = (np.sum((w_samples - w_avg) ** 2) / w_avg_samples) ** 0.5
@@ -172,7 +173,7 @@ class Stylegan2Wrapper:
         save_video: bool       = False,
         seed: int = 123,
         num_steps : int = 2000,
-        device : torch.device = torch.device('cuda'),
+        device : torch.device = DEVICE,
         verbose : bool         = False
     ):
         np.random.seed(seed)
@@ -201,7 +202,7 @@ class Stylegan2Wrapper:
         # Save final projed latent
         os.makedirs(outdir, exist_ok=True)
         with open(os.path.join(outdir, out_name + '.pkl'), 'wb') as f:
-            pkl.dump(projected_w_steps[-1, :1], f)
+            pkl.dump(projected_w_steps[-1, :1].cpu(), f)
 
         # Render debug output: optional video and projected image and W vector.
         os.makedirs(outdir, exist_ok=True)
@@ -263,7 +264,7 @@ class Stylegan2Wrapper:
         interpolation_steps,    #amount of interpolation samples
         outdir : str, 
         w : torch.tensor        = None, # if w is None its randomly sampled a point on Z space to perform movement 
-        device : torch.device   = torch.device('cuda'),
+        device : torch.device   = DEVICE,
         n_samples : int         = 10000, #number of samples to compute pca
         fit_pca : bool          = True, #whether to compute pca or if it's already calculated
         modify_list : list      = [], #each item is a tuple of the form (principal_component_number, (start_layer, end_layer), (lower_coeff_limit, upper_coeff_limit))
@@ -287,14 +288,14 @@ class Stylegan2Wrapper:
             z = torch.randn([1, G.z_dim], device=device)
             w = G.mapping(z, c=None)[:, 0, :]#torch.nn.functional.one_hot(torch.tensor([cur_class]), n_classes).to(device))
         
-        ws = w.unsqueeze(0).repeat([interpolation_steps, 1, G.num_ws, 1])
+        ws = w.to(device).unsqueeze(0).repeat([interpolation_steps, 1, G.num_ws, 1])
 
         for (comp, (l_layer, r_layer), (l_coeff, r_coeff)) in modify_list:
             v = np.zeros((1, G.w_dim))
             v[0, comp] = 1
             u = pca.inverse_transform(v) - pca.mean_
             n_layers = r_layer - l_layer + 1
-            u = torch.tensor(u, device=device)#.unsqueeze(0).repeat([2, n_layers, 1])
+            u = torch.tensor(u, dtype=torch.float32, device=device)#.unsqueeze(0).repeat([2, n_layers, 1])
 
             coeff = torch.linspace(l_coeff, r_coeff, interpolation_steps, device=device).reshape(interpolation_steps, 1, 1, 1).repeat([1, 1, n_layers, G.w_dim])		
             mov = coeff * u
