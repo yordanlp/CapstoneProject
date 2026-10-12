@@ -1,5 +1,6 @@
-
 # PixelLift: A Web Application for AI-Driven Image Manipulation using GANs
+
+https://github.com/user-attachments/assets/2530d0ac-2a03-4216-a964-7e3c960172a0
 
 ## Table of Contents
 
